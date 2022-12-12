@@ -69,7 +69,6 @@ func (particle Particle_t) String() (output string) {
 	output += fmt.Sprintf("Name =            %s\n", particle.Name)
 	output += fmt.Sprintf("Mass =            %.2e\n", particle.Mass)
 	output += fmt.Sprintf("Position =        %v\n", particle.Position)
-
 	output += fmt.Sprintf("Velocity =        %v\n", particle.Velocity)
 	output += fmt.Sprintf("Speed =           %.2e\n", r2.Norm(particle.Velocity))
 	output += fmt.Sprintf("Angle betwee x+ = %.2e pi\n", math.Acos(r2.Cos(particle.Velocity, vector.Vec{X: 1, Y: 0}))/math.Pi)

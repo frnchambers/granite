@@ -10,10 +10,10 @@ import (
 type Dot_t struct {
 	col      color.Color
 	diameter float64
-	data     vector.Vec
+	position vector.Vec
 }
 
-func New_dot(lookup *vector.Vec, col color.Color, diameter float64) Dot_t {
+func New_dot(col color.Color, diameter float64) Dot_t {
 	return Dot_t{
 		col:      col,
 		diameter: diameter,
@@ -29,16 +29,16 @@ func New_static_dot(col color.Color, diameter float64, position vector.Vec) (dot
 	return
 }
 
-func (dot *Dot_t) Update(position vector.Vec) {
-	dot.data = position
+func (dot *Dot_t) Update(new_position vector.Vec) {
+	dot.position = new_position
 }
 
 func (dot *Dot_t) Plot() {
 	p5.Stroke(dot.col)
 	p5.Fill(dot.col)
-	p5.Circle(dot.data.X, -dot.data.Y, dot.diameter)
+	p5.Circle(dot.position.X, -dot.position.Y, dot.diameter)
 }
 
 func (dot *Dot_t) Position() vector.Vec {
-	return dot.data
+	return dot.position
 }

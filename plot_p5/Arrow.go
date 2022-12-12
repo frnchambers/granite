@@ -12,15 +12,15 @@ type Arrow_t struct {
 	start, end vector.Vec
 }
 
-func New_arrow(lookup *vector.Vec, col color.Color) Arrow_t {
+func New_arrow(col color.Color) Arrow_t {
 	return Arrow_t{
 		col: col,
 	}
 }
 
-func (arrow *Arrow_t) Update(start, end vector.Vec) {
-	arrow.start = start
-	arrow.end = end
+func (arrow *Arrow_t) Update(new_start, new_end vector.Vec) {
+	arrow.start = new_start
+	arrow.end = new_end
 }
 
 func (arrow *Arrow_t) Plot() {

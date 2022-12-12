@@ -2,6 +2,10 @@ package integrator
 
 import "math"
 
+func Default_algorithm() Algorithm_t {
+	return Default_O4_algorithm()
+}
+
 func Choose_algorithm(required_error_order int) (algo Algorithm_t) {
 	if required_error_order >= 6 {
 		algo = version_3_4_1_v_1()
@@ -13,8 +17,16 @@ func Choose_algorithm(required_error_order int) (algo Algorithm_t) {
 	return
 }
 
-func Default_algorithm() Algorithm_t {
+func Default_O2_algorithm() Algorithm_t {
+	return version_3_1_1_v_2()
+}
+
+func Default_O4_algorithm() Algorithm_t {
 	return version_3_2_1_v_2()
+}
+
+func Default_O6_algorithm() Algorithm_t {
+	return version_3_4_1_v_1()
 }
 
 /* --------------------------- 3-stage algorithms --------------------------- */

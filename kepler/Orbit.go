@@ -100,3 +100,20 @@ func x_from_polar(r, phi float64) float64 {
 func y_from_polar(r, phi float64) float64 {
 	return r * math.Sin(phi)
 }
+
+func (orbit Orbit_t) String() (output string) {
+	output = fmt.Sprintf("Orbit_t: {")
+	output += fmt.Sprintf("Semi-major axis = %.2e\n", orbit.Semi_major)
+	output += fmt.Sprintf("Semi-minor axis = %.2e\n", orbit.Semi_minor)
+	output += fmt.Sprintf("Eccentricity = %.2e\n", orbit.Eccentricity)
+	output += fmt.Sprintf("Linear-eccentricity = %.2e\n", orbit.Linear_eccentricity)
+	output += fmt.Sprintf("Mu axis             = %.2e\n", orbit.Mu)
+	output += fmt.Sprintf("Period          = %.2e\n", orbit.Period)
+	output += fmt.Sprintf("Energy per mass = %.2e\n", orbit.Energy_per_mass)
+	output += fmt.Sprintf("R_aphelion   = %.2e\n", orbit.Aphelion)
+	output += fmt.Sprintf("R_perihelion = %.2e\n", orbit.Perihelion)
+	output += fmt.Sprintf("V_aphelion   = %.2e\n", orbit.V_aphelion)
+	output += fmt.Sprintf("V_perihelion = %.2e\n", orbit.V_perihelion)
+	output += fmt.Sprintf("}")
+	return
+}
