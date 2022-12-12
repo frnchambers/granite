@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/granite/kepler"
+	"github.com/granite/test_tools"
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
-	"main.go/kepler"
-	"main.go/test_tools"
 )
 
 func example_plot() {

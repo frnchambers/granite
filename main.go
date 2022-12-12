@@ -6,11 +6,11 @@ import (
 	"math"
 
 	"github.com/go-p5/p5"
+	"github.com/granite/integrator"
+	"github.com/granite/kepler"
+	"github.com/granite/physics"
+	"github.com/granite/plot"
 	"gonum.org/v1/gonum/spatial/r2"
-	"main.go/integrator"
-	"main.go/kepler"
-	"main.go/physics"
-	"main.go/plot"
 )
 
 const (

@@ -1,11 +1,10 @@
 package kepler
 
 import (
-	"main.go/plot"
-	"main.go/test_tools"
-
+	"github.com/granite/physics"
+	"github.com/granite/plot"
+	"github.com/granite/test_tools"
 	"gonum.org/v1/gonum/spatial/r2"
-	"main.go/physics"
 )
 
 func New_satellite(phi float64, orbit *Orbit_t) physics.Particle_t {

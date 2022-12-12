@@ -3,8 +3,8 @@ package plot
 import (
 	"image/color"
 
+	"github.com/granite/physics"
 	"gonum.org/v1/gonum/spatial/r2"
-	"main.go/physics"
 )
 
 func Update_dots(dots []Dot_t, particles []physics.Particle_t) {

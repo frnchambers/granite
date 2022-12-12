@@ -1,6 +1,6 @@
 package integrator
 
-import "main.go/physics"
+import "github.com/granite/physics"
 
 type Stepper_t struct {
 	algorithm Algorithm_t

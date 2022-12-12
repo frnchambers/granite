@@ -3,7 +3,7 @@ package integrator
 import (
 	"testing"
 
-	"main.go/test_tools"
+	"github.com/granite/test_tools"
 )
 
 func Test_stages_for_velocity_version_with_unique_parameters_equal(t *testing.T) {

@@ -3,7 +3,7 @@ package physics
 import (
 	"testing"
 
-	"main.go/test_tools"
+	"github.com/granite/test_tools"
 )
 
 func Test_Increment_position_using_velocity(t *testing.T) {

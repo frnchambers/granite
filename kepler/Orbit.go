@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/granite/test_tools"
 	"gonum.org/v1/gonum/spatial/r2"
-	"main.go/test_tools"
 )
 
 type Orbit_t struct {

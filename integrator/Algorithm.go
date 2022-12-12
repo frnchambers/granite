@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	"main.go/test_tools"
+	"github.com/granite/test_tools"
 )
 
 const (

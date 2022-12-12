@@ -3,7 +3,7 @@ package integrator
 import (
 	"fmt"
 
-	"main.go/physics"
+	"github.com/granite/physics"
 )
 
 type single_step_t interface {

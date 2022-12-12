@@ -1,6 +1,8 @@
 package physics
 
-import "gonum.org/v1/gonum/spatial/r2"
+import (
+	"gonum.org/v1/gonum/spatial/r2"
+)
 
 type Force_t interface {
 	Calculate_forces(particles []Particle_t)

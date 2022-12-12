@@ -4,8 +4,8 @@ import (
 	"math"
 	"testing"
 
+	"github.com/granite/test_tools"
 	"gonum.org/v1/gonum/spatial/r2"
-	"main.go/test_tools"
 )
 
 func Test_Tau_circular(t *testing.T) {
