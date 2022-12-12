@@ -1,0 +1,56 @@
+
+
+x(phi) = r(phi) cos(phi)
+y(phi) = r(phi) sin(phi)
+v_tangent = (x', y')
+
+
+Chi(phi) = 1 + e cos(phi)
+r(phi) = p / Chi(phi)
+
+Chi' = -e sin(phi)
+r' = p * (-1) / Chi(phi)^2 (-e sin(phi))
+   = p e sin(phi) / Chi(phi)^2
+   = e r(phi) sin(phi) / Chi(phi)
+
+x'(phi) = r'(phi) cos(phi) - r(phi) sin(phi)
+y'(phi) = r'(phi) sin(phi) + r(phi) cos(phi)
+
+x'(phi) = e r(phi) sin(phi) cos(phi) / Chi(phi) - y(phi)
+y'(phi) = e r(phi) sin(phi)^2 / Chi(phi)        + x(phi)
+
+x'(phi) = e r(phi) sin(phi) cos(phi) / Chi(phi) - y(phi)
+y'(phi) = e r(phi) sin(phi)^2 / Chi(phi)        + x(phi)
+
+x'(phi) = - y(phi) + e r(phi) sin(phi) cos(phi) / Chi(phi) 
+y'(phi) =   x(phi) + e r(phi) (1 - cos(phi)^2) / Chi(phi)        
+
+x'(phi) = - y(phi) + e y(phi) cos(phi) / Chi(phi) 
+y'(phi) =   x(phi) - e x(phi) cos(phi) / Chi(phi) + e r(phi) / Chi(phi)
+
+x'(phi) = - y(phi)[ 1 - e cos(phi) / Chi(phi)]
+y'(phi) =   x(phi)[ 1 - e cos(phi) / Chi(phi)] + e r(phi) / Chi(phi)       
+
+
+
+
+
+
+     +
+     |  \
+ b   |      \  
+     |          \  
+     |      theta   \   
+     +-----------------+
+         linear_ecc
+
+
+theta = arctan(b / linear_ecc)
+
+
+
+
+
+
+
+
