@@ -8,7 +8,8 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/granite/test_tools"
+	"github.com/granite/root_solver"
+	"github.com/granite/vector"
 	"gonum.org/v1/gonum/spatial/r2"
 )
 
@@ -37,34 +38,34 @@ func New_orbit(a, ecc, period float64) (orbit Orbit_t) {
 	return
 }
 
-func Tangent_to_elliplse(phi float64, orbit *Orbit_t) r2.Vec {
-	r := Distance(phi, orbit)
-	chi := Chi(phi, orbit.Eccentricity)
-	x, y := test_tools.Destructure_vector(Position_along_elliplse(phi, orbit))
+func Tangent_along_ellipse(phi float64, orbit *Orbit_t) vector.Vec {
+	r := Distance_from_centre(phi, orbit)
+	chi := chi(phi, orbit.Eccentricity)
+	x, y := vector.Destructure(Position_along_elliplse(phi, orbit))
 	scale := 1.0 - orbit.Eccentricity*math.Cos(phi)/chi
 	y_shift := orbit.Eccentricity * r / chi
-	return r2.Unit(r2.Vec{X: -y * scale, Y: x*scale + y_shift})
+	return r2.Unit(vector.Vec{X: -y * scale, Y: x*scale + y_shift})
 }
 
-func Position_along_elliplse(phi float64, orbit *Orbit_t) r2.Vec {
-	r := Distance(phi, orbit)
-	return Cartesian_position_from_polar(r, phi)
+func Position_along_elliplse(phi float64, orbit *Orbit_t) vector.Vec {
+	r := Distance_from_centre(phi, orbit)
+	return cartesian_position_from_polar(r, phi)
 }
 
-func Distance(phi float64, orbit *Orbit_t) float64 {
-	return orbit.Semi_major * (1.0 - orbit.Eccentricity*orbit.Eccentricity) / Chi(phi, orbit.Eccentricity)
+func Distance_from_centre(phi float64, orbit *Orbit_t) float64 {
+	return orbit.Semi_major * (1.0 - orbit.Eccentricity*orbit.Eccentricity) / chi(phi, orbit.Eccentricity)
 }
 
 func Speed_from_distance(distance float64, orbit *Orbit_t) float64 {
 	return math.Sqrt(orbit.Mu * (2.0/distance - 1.0/orbit.Semi_major))
 }
 
-func Speed(phi float64, orbit *Orbit_t) float64 {
-	return Speed_from_distance(Distance(phi, orbit), orbit)
+func Speed_along_ellipse(phi float64, orbit *Orbit_t) float64 {
+	return Speed_from_distance(Distance_from_centre(phi, orbit), orbit)
 }
 
 func Time_to_perihelion(phi float64, orbit *Orbit_t) float64 {
-	return math.Sqrt(orbit.Semi_major*orbit.Semi_major*orbit.Semi_major/orbit.Mu) * Tau(phi, orbit.Eccentricity)
+	return math.Sqrt(orbit.Semi_major*orbit.Semi_major*orbit.Semi_major/orbit.Mu) * tau(phi, orbit.Eccentricity)
 }
 
 func Phi_for_time_to_perihelion(time float64, orbit *Orbit_t) (output float64, err error) {
@@ -72,24 +73,24 @@ func Phi_for_time_to_perihelion(time float64, orbit *Orbit_t) (output float64, e
 		message := fmt.Sprintf("Invalid time, %.2e, must be less than one orbital period, %.2e", time, orbit.Period)
 		return output, errors.New(message)
 	}
-	bisec := test_tools.New_bisection_parameters(0.0, math.Pi)
+	bisec := root_solver.New_bisection_parameters(0.0, math.Pi)
 	bisec.Y_desired = time
-	output, err = test_tools.Bisection(Time_to_perihelion, orbit, &bisec)
+	output, err = root_solver.Bisection(Time_to_perihelion, orbit, &bisec)
 	return
 }
 
-func Chi(phi, ecc float64) float64 {
+func chi(phi, ecc float64) float64 {
 	return 1.0 + ecc*math.Cos(phi)
 }
 
-func Tau(phi, ecc float64) (output float64) {
+func tau(phi, ecc float64) (output float64) {
 	// one_m_eccsq := 1.0 - ecc*ecc
 	return 2.0*math.Atan(math.Sqrt((1.0-ecc)/(1.0+ecc))*math.Tan(0.5*phi)) -
-		ecc*math.Sqrt(1-ecc*ecc)*math.Sin(phi)/Chi(phi, ecc)
+		ecc*math.Sqrt(1-ecc*ecc)*math.Sin(phi)/chi(phi, ecc)
 }
 
-func Cartesian_position_from_polar(r, phi float64) r2.Vec {
-	return r2.Vec{X: x_from_polar(r, phi), Y: y_from_polar(r, phi)}
+func cartesian_position_from_polar(r, phi float64) vector.Vec {
+	return vector.Vec{X: x_from_polar(r, phi), Y: y_from_polar(r, phi)}
 }
 
 func x_from_polar(r, phi float64) float64 {

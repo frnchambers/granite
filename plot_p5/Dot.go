@@ -1,26 +1,26 @@
-package plot
+package plot_p5
 
 import (
 	"image/color"
 
 	"github.com/go-p5/p5"
-	"gonum.org/v1/gonum/spatial/r2"
+	"github.com/granite/vector"
 )
 
 type Dot_t struct {
 	col      color.Color
 	diameter float64
-	data     r2.Vec
+	data     vector.Vec
 }
 
-func New_dot(lookup *r2.Vec, col color.Color, diameter float64) Dot_t {
+func New_dot(lookup *vector.Vec, col color.Color, diameter float64) Dot_t {
 	return Dot_t{
 		col:      col,
 		diameter: diameter,
 	}
 }
 
-func New_static_dot(col color.Color, diameter float64, position r2.Vec) (dot Dot_t) {
+func New_static_dot(col color.Color, diameter float64, position vector.Vec) (dot Dot_t) {
 	dot = Dot_t{
 		col:      col,
 		diameter: diameter,
@@ -29,7 +29,7 @@ func New_static_dot(col color.Color, diameter float64, position r2.Vec) (dot Dot
 	return
 }
 
-func (dot *Dot_t) Update(position r2.Vec) {
+func (dot *Dot_t) Update(position vector.Vec) {
 	dot.data = position
 }
 
@@ -39,6 +39,6 @@ func (dot *Dot_t) Plot() {
 	p5.Circle(dot.data.X, -dot.data.Y, dot.diameter)
 }
 
-func (dot *Dot_t) Position() r2.Vec {
+func (dot *Dot_t) Position() vector.Vec {
 	return dot.data
 }

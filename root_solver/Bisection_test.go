@@ -1,7 +1,9 @@
-package test_tools
+package root_solver
 
 import (
 	"testing"
+
+	"github.com/granite/comparison"
 )
 
 func Test_bisection_expect_success(t *testing.T) {
@@ -20,7 +22,7 @@ func Test_bisection_expect_success(t *testing.T) {
 		t.Fatalf("Test_bisection: error threw unexpectedly")
 	}
 
-	if !(Float64_equality_within_tolerance(expected_root, actual_root, bisec.Tolerance*10.0)) {
+	if !(comparison.Float64_equality_within_tolerance(expected_root, actual_root, bisec.Tolerance*10.0)) {
 		t.Fatalf(
 			"Test_bisection: expected_root = %v, actual_root = %v",
 			expected_root, actual_root,
@@ -44,7 +46,7 @@ func Test_bisection_single_variable_expect_success(t *testing.T) {
 		t.Fatalf("Test_bisection: error threw unexpectedly")
 	}
 
-	if !(Float64_equality_within_tolerance(expected_root, actual_root, bisec.Tolerance*10.0)) {
+	if !(comparison.Float64_equality_within_tolerance(expected_root, actual_root, bisec.Tolerance*10.0)) {
 		t.Fatalf(
 			"Test_bisection: expected_root = %v, actual_root = %v",
 			expected_root, actual_root,

@@ -1,5 +1,7 @@
 package integrator
 
+// not working so far
+
 func (algorithm *Algorithm_t) validate() (is_valid bool, reason string) {
 
 	is_valid = true

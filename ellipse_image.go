@@ -5,7 +5,7 @@ import (
 	"math"
 
 	"github.com/granite/kepler"
-	"github.com/granite/test_tools"
+	"github.com/granite/vector"
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
@@ -45,7 +45,7 @@ func elliplse_points(orbit *kepler.Orbit_t, n int) (points plotter.XYs) {
 	d_phi := 2.0 * math.Pi / float64(n-1)
 	phi := -math.Pi
 	for i := range points {
-		points[i].X, points[i].Y = test_tools.Destructure_vector(
+		points[i].X, points[i].Y = vector.Destructure(
 			kepler.Position_along_elliplse(phi, orbit))
 		phi += d_phi
 	}

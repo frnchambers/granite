@@ -3,6 +3,7 @@ package physics
 import (
 	"fmt"
 
+	"github.com/granite/vector"
 	"gonum.org/v1/gonum/spatial/r2"
 )
 
@@ -35,7 +36,7 @@ type Gravity_massive_body_t struct{ Gravitation_massive_body Gravitation_massive
 func (g *Gravity_massive_body_t) Body_mass() float64 {
 	return g.Gravitation_massive_body.body.Mass
 }
-func (g *Gravity_massive_body_t) Centre() r2.Vec {
+func (g *Gravity_massive_body_t) Centre() vector.Vec {
 	return g.Gravitation_massive_body.body.Position
 }
 func (g *Gravity_massive_body_t) Body() Particle_t {
@@ -45,7 +46,7 @@ func (g *Gravity_massive_body_t) Body() Particle_t {
 func New_massive_body(particle Particle_t) Gravity_massive_body_t {
 	return Gravity_massive_body_t{
 		Gravitation_massive_body: Gravitation_massive_body_t{
-			body: New_particle(particle.Name, particle.Mass, particle.Position, r2.Vec{X: 0, Y: 0}),
+			body: New_particle(particle.Name, particle.Mass, particle.Position, vector.Null()),
 		},
 	}
 }
@@ -68,21 +69,21 @@ func (g *Gravitation_massive_body_t) Body() Particle_t {
 func (g *Gravitation_massive_body_t) Body_mass() float64 {
 	return g.body.Mass
 }
-func (g *Gravitation_massive_body_t) Body_position() r2.Vec {
+func (g *Gravitation_massive_body_t) Body_position() vector.Vec {
 	return g.body.Position
 }
 
-func (central_mass *Gravitation_massive_body_t) force(p *Particle_t) r2.Vec {
+func (central_mass *Gravitation_massive_body_t) force(p *Particle_t) vector.Vec {
 	return Gravitational_interaction_t{}.force_on_p_from_q(p, &central_mass.body)
 }
 
-func (central_mass *Gravitation_massive_body_t) force_gradient(p *Particle_t) r2.Vec {
+func (central_mass *Gravitation_massive_body_t) force_gradient(p *Particle_t) vector.Vec {
 	return Gravitational_interaction_t{}.force_gradient_on_p_from_q(p, &central_mass.body)
 }
 
 type Gravitational_interaction_t struct{}
 
-func (Gravitational_interaction_t) force_on_p_from_q(p, q *Particle_t) (force_q_on_p r2.Vec) {
+func (Gravitational_interaction_t) force_on_p_from_q(p, q *Particle_t) (force_q_on_p vector.Vec) {
 	var (
 		direction = r2.Sub(p.Position, q.Position)
 		distance  = r2.Norm(direction)
@@ -91,7 +92,7 @@ func (Gravitational_interaction_t) force_on_p_from_q(p, q *Particle_t) (force_q_
 	return
 }
 
-func (Gravitational_interaction_t) force_gradient_on_p_from_q(p, q *Particle_t) (force_gradient_q_on_p r2.Vec) {
+func (Gravitational_interaction_t) force_gradient_on_p_from_q(p, q *Particle_t) (force_gradient_q_on_p vector.Vec) {
 	var (
 		dr           = r2.Sub(p.Position, q.Position)
 		da           = r2.Sub(r2.Scale(1.0/p.Mass, p.Force), r2.Scale(1.0/q.Mass, q.Force))

@@ -1,6 +1,10 @@
-package test_tools
+package integrator
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/granite/comparison"
+)
 
 func Test_reverse_array(t *testing.T) {
 
@@ -8,12 +12,12 @@ func Test_reverse_array(t *testing.T) {
 	array := []int{1, 2, 3, 4}
 
 	// when
-	actual := Make_reverse_array(array)
+	actual := make_reverse_array(array)
 
 	// expect
 	expected := []int{4, 3, 2, 1}
 
-	if !Are_int_slices_equal(expected, actual) {
+	if !comparison.Are_int_slices_equal(expected, actual) {
 		t.Fatalf(
 			"Test_reverse_array: expected_array = %v, actual_array = %v",
 			expected, actual,
@@ -28,12 +32,12 @@ func Test_mirror_even_array(t *testing.T) {
 	array := []int{1, 2, 3, 4}
 
 	// when
-	actual := Make_mirror_array(array, is_even)
+	actual := make_mirror_array(array, is_even)
 
 	// expect
 	expected := []int{1, 2, 3, 4, 4, 3, 2, 1}
 
-	if !Are_int_slices_equal(expected, actual) {
+	if !comparison.Are_int_slices_equal(expected, actual) {
 		t.Fatalf(
 			"Test_mirror_even_array: expected_array = %v, actual_array = %v",
 			expected, actual,
@@ -48,12 +52,12 @@ func Test_mirror_odd_array(t *testing.T) {
 	array := []int{1, 2, 3, 4}
 
 	// when
-	actual := Make_mirror_array(array, is_even)
+	actual := make_mirror_array(array, is_even)
 
 	// expect
 	expected := []int{1, 2, 3, 4, 3, 2, 1}
 
-	if !Are_int_slices_equal(expected, actual) {
+	if !comparison.Are_int_slices_equal(expected, actual) {
 		t.Fatalf(
 			"Test_mirror_even_array: expected_array = %v, actual_array = %v",
 			expected, actual,

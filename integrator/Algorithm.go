@@ -3,8 +3,6 @@ package integrator
 import (
 	"fmt"
 	"math"
-
-	"github.com/granite/test_tools"
 )
 
 const (
@@ -39,17 +37,17 @@ func should_perform_fg_step(force_gradient_coefficient float64) bool {
 
 func (algorithm *Algorithm_t) velocity_stages() []float64 {
 	is_even := !(algorithm.is_velocity_version == algorithm.are_unique_lengths_equal())
-	return test_tools.Make_mirror_array(algorithm.unique_velocity_coefficients, is_even)
+	return make_mirror_array(algorithm.unique_velocity_coefficients, is_even)
 }
 
 func (algorithm *Algorithm_t) force_stages() []float64 {
 	is_even := (algorithm.is_velocity_version == algorithm.are_unique_lengths_equal())
-	return test_tools.Make_mirror_array(algorithm.unique_force_coefficients, is_even)
+	return make_mirror_array(algorithm.unique_force_coefficients, is_even)
 }
 
 func (algorithm *Algorithm_t) force_gradient_stages() []float64 {
 	is_even := (algorithm.is_velocity_version == algorithm.are_unique_lengths_equal())
-	return test_tools.Make_mirror_array(algorithm.unique_fg_coefficients, is_even)
+	return make_mirror_array(algorithm.unique_fg_coefficients, is_even)
 }
 
 func (algorithm *Algorithm_t) are_unique_lengths_equal() bool {

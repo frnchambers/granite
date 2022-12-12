@@ -1,6 +1,7 @@
 package physics
 
 import (
+	"github.com/granite/vector"
 	"gonum.org/v1/gonum/spatial/r2"
 )
 
@@ -10,13 +11,13 @@ type Force_t interface {
 }
 
 type Interaction_force_t interface {
-	force_on_p_from_q(p, q *Particle_t) r2.Vec
-	force_gradient_on_p_from_q(p, q *Particle_t) r2.Vec
+	force_on_p_from_q(p, q *Particle_t) vector.Vec
+	force_gradient_on_p_from_q(p, q *Particle_t) vector.Vec
 }
 
 type External_force_t interface {
-	force(p *Particle_t) r2.Vec
-	force_gradient(p *Particle_t) r2.Vec
+	force(p *Particle_t) vector.Vec
+	force_gradient(p *Particle_t) vector.Vec
 }
 
 func Calculate_inter_particle_forces(interaction Interaction_force_t, particles []Particle_t) {

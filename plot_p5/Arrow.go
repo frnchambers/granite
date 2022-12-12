@@ -1,24 +1,24 @@
-package plot
+package plot_p5
 
 import (
 	"image/color"
 
 	"github.com/go-p5/p5"
-	"gonum.org/v1/gonum/spatial/r2"
+	"github.com/granite/vector"
 )
 
 type Arrow_t struct {
 	col        color.Color
-	start, end r2.Vec
+	start, end vector.Vec
 }
 
-func New_arrow(lookup *r2.Vec, col color.Color) Arrow_t {
+func New_arrow(lookup *vector.Vec, col color.Color) Arrow_t {
 	return Arrow_t{
 		col: col,
 	}
 }
 
-func (arrow *Arrow_t) Update(start, end r2.Vec) {
+func (arrow *Arrow_t) Update(start, end vector.Vec) {
 	arrow.start = start
 	arrow.end = end
 }

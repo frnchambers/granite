@@ -9,7 +9,8 @@ import (
 	"github.com/granite/integrator"
 	"github.com/granite/kepler"
 	"github.com/granite/physics"
-	"github.com/granite/plot"
+	"github.com/granite/plot_p5"
+	"github.com/granite/vector"
 	"gonum.org/v1/gonum/spatial/r2"
 )
 
@@ -21,12 +22,12 @@ var (
 	orbit  kepler.Orbit_t
 	system physics.System_t
 
-	sim plot.Simulation_t
+	sim plot_p5.Simulation_t
 
-	solar_dot  plot.Dot_t
-	dots       []plot.Dot_t
-	trails     []plot.Trail_t
-	velocities []plot.Arrow_t
+	solar_dot  plot_p5.Dot_t
+	dots       []plot_p5.Dot_t
+	trails     []plot_p5.Trail_t
+	velocities []plot_p5.Arrow_t
 
 	stepper integrator.Stepper_t
 )
@@ -36,13 +37,14 @@ func initialise_satellite() {
 	ecc := 0.7
 	period := 1.0
 
-	solar_position := r2.Vec{X: 0, Y: 0}
+	solar_position := vector.Vec{X: 0, Y: 0}
 	orbit = kepler.New_orbit(a, ecc, period)
 
+	time_lag := orbit.Period / 16.0
 	offset_times := []float64{
-		0.0 * orbit.Period / 16.0,
-		1.0 * orbit.Period / 16.0,
-		2.0 * orbit.Period / 16.0,
+		0.0 * time_lag,
+		1.0 * time_lag,
+		2.0 * time_lag,
 	}
 	n_particles := len(offset_times)
 
@@ -65,8 +67,8 @@ func initialise_satellite() {
 
 	system = physics.System_t{Force: kepler.New_massive_body(&orbit), Particles: particles}
 
-	solar_dot = plot.New_static_dot(color.RGBA{R: 246, G: 244, B: 129, A: 255}, 5.0e-2, solar_position)
-	dots, trails, velocities = plot.From_system(system.Particles, sim.Dot_size, sim.Trail_length)
+	solar_dot = plot_p5.New_static_dot(color.RGBA{R: 246, G: 244, B: 129, A: 255}, 5.0e-2, solar_position)
+	dots, trails, velocities = plot_p5.From_system(system.Particles, sim.Dot_size, sim.Trail_length)
 	stepper = integrator.New_stepper(integrator.Default_algorithm())
 }
 
@@ -98,9 +100,9 @@ func draw_frame() {
 
 	stepper.Run(&system, sim.Step_time)
 
-	plot.Update_dots(dots, system.Particles)
-	plot.Update_trails(trails, system.Particles)
-	plot.Update_velocities(velocities, system.Particles)
+	plot_p5.Update_dots(dots, system.Particles)
+	plot_p5.Update_trails(trails, system.Particles)
+	plot_p5.Update_velocities(velocities, system.Particles)
 
 	// p5.Stroke(color.White)
 	// p5.Fill(color.Black)

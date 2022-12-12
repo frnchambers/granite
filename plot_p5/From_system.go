@@ -1,10 +1,14 @@
-package plot
+package plot_p5
 
 import (
 	"image/color"
 
 	"github.com/granite/physics"
 	"gonum.org/v1/gonum/spatial/r2"
+)
+
+const (
+	DEFAULT_VELOCITY_SCALE = 0.2
 )
 
 func Update_dots(dots []Dot_t, particles []physics.Particle_t) {
@@ -21,8 +25,7 @@ func Update_trails(trails []Trail_t, particles []physics.Particle_t) {
 
 func Update_velocities(arrows []Arrow_t, particles []physics.Particle_t) {
 	for i := range particles {
-		// normalised_velocity := r2.Scale(0.2, r2.Unit(particles[i].Velocity))
-		normalised_velocity := r2.Scale(0.2, particles[i].Velocity)
+		normalised_velocity := r2.Scale(DEFAULT_VELOCITY_SCALE, particles[i].Velocity)
 		arrows[i].Update(particles[i].Position, r2.Add(particles[i].Position, normalised_velocity))
 	}
 }

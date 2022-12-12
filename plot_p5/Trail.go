@@ -1,31 +1,31 @@
-package plot
+package plot_p5
 
 import (
 	"image/color"
 
 	"github.com/go-p5/p5"
-	"gonum.org/v1/gonum/spatial/r2"
+	"github.com/granite/vector"
 )
 
 type Trail_t struct {
 	col    color.Color
 	length int
-	data   []r2.Vec
+	data   []vector.Vec
 }
 
-func New_trail(lookup *r2.Vec, col color.Color, length int) Trail_t {
+func New_trail(lookup *vector.Vec, col color.Color, length int) Trail_t {
 	return Trail_t{
 		col:    col,
 		length: length,
-		data:   make([]r2.Vec, 0, length),
+		data:   make([]vector.Vec, 0, length),
 	}
 }
 
-func (trail *Trail_t) Update(position r2.Vec) {
+func (trail *Trail_t) Update(position vector.Vec) {
 	if len(trail.data) >= trail.length {
-		trail.data = append([]r2.Vec{position}, trail.data[:len(trail.data)-1]...)
+		trail.data = append([]vector.Vec{position}, trail.data[:len(trail.data)-1]...)
 	} else {
-		trail.data = append([]r2.Vec{position}, trail.data...)
+		trail.data = append([]vector.Vec{position}, trail.data...)
 	}
 }
 

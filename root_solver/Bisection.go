@@ -1,13 +1,15 @@
-package test_tools
+package root_solver
 
 import (
 	"errors"
 	"fmt"
+
+	"github.com/granite/comparison"
 )
 
 const (
 	DEFAULT_MAXIMUM_ITERATIONS = 100
-	DEFAULT_TOLERANCE          = FLOAT64_PERCENTAGE_DIFFERENCE_TOLERANCE
+	DEFAULT_TOLERANCE          = comparison.DEFAULT_FLOAT64_PERCENTAGE_DIFFERENCE_TOLERANCE
 )
 
 func single_variable_handler(x float64, fn *func(float64) float64) float64 {
@@ -37,15 +39,16 @@ func Bisection_single_variable(
 }
 
 func Bisection[fn_parameters_t any](
-	fn func(float64, *fn_parameters_t) float64, fn_parameters *fn_parameters_t,
+	fn func(float64, *fn_parameters_t) float64,
+	fn_parameters *fn_parameters_t,
 	bisec *Bisection_parameters_t,
 ) (root float64, err error) {
 
 	fn_0, fn_1 := fn(bisec.X_0, fn_parameters)-bisec.Y_desired, fn(bisec.X_1, fn_parameters)-bisec.Y_desired
-	if Float64_equality_within_tolerance(fn_0, 0.0, bisec.Tolerance) {
+	if comparison.Float64_equality_within_tolerance(fn_0, 0.0, bisec.Tolerance) {
 		return bisec.X_0, nil
 	}
-	if Float64_equality_within_tolerance(fn_1, 0.0, bisec.Tolerance) {
+	if comparison.Float64_equality_within_tolerance(fn_1, 0.0, bisec.Tolerance) {
 		return bisec.X_1, nil
 	}
 
@@ -70,7 +73,7 @@ func Bisection[fn_parameters_t any](
 			fn_1 = fn_root
 		}
 
-		if Float64_equality_within_tolerance(fn_root, 0.0, bisec.Tolerance) {
+		if comparison.Float64_equality_within_tolerance(fn_root, 0.0, bisec.Tolerance) {
 			is_converged = true
 		}
 

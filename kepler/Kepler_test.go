@@ -4,8 +4,8 @@ import (
 	"math"
 	"testing"
 
-	"github.com/granite/test_tools"
-	"gonum.org/v1/gonum/spatial/r2"
+	"github.com/granite/comparison"
+	"github.com/granite/vector"
 )
 
 func Test_Tau_circular(t *testing.T) {
@@ -20,12 +20,12 @@ func Test_Tau_circular(t *testing.T) {
 		phi := sample_phis[i]
 
 		// when
-		actual := Tau(phi, ecc)
+		actual := tau(phi, ecc)
 
 		// expect
 		expect := phi
 
-		if !test_tools.Float64_equality(expect, actual) {
+		if !comparison.Float64_equality(expect, actual) {
 			t.Fatalf(
 				"Test %v, phi = %v, failed: expect = %v, actual = %v",
 				i, phi, expect, actual,
@@ -47,12 +47,12 @@ func Test_Tau_elliptical(t *testing.T) {
 		phi := sample_phis[i]
 
 		// when
-		actual := Tau(phi, ecc)
+		actual := tau(phi, ecc)
 
 		// expect
 		expect := expected_tau[i]
 
-		if !test_tools.Float64_equality(expect, actual) {
+		if !comparison.Float64_equality(expect, actual) {
 			t.Fatalf(
 				"Test %v, phi = %v, failed: expect = %v, actual = %v",
 				i, phi, expect, actual,
@@ -74,12 +74,12 @@ func Test_Distance(t *testing.T) {
 		phi := sample_phis[i]
 
 		// when
-		actual := Distance(phi, &orbit)
+		actual := Distance_from_centre(phi, &orbit)
 
 		// expect
 		expect := expected_distances[i]
 
-		if !test_tools.Float64_equality(expect, actual) {
+		if !comparison.Float64_equality(expect, actual) {
 			t.Fatalf(
 				"Test %v, phi = %v, failed: expect = %v, actual = %v",
 				i, phi, expect, actual,
@@ -101,12 +101,12 @@ func Test_Speed(t *testing.T) {
 		phi := sample_phis[i]
 
 		// when
-		actual := Speed(phi, &orbit)
+		actual := Speed_along_ellipse(phi, &orbit)
 
 		// expect
 		expect := expected_speeds[i]
 
-		if !test_tools.Float64_equality(expect, actual) {
+		if !comparison.Float64_equality(expect, actual) {
 			t.Fatalf(
 				"Test %v, phi = %v, failed: expect = %v, actual = %v",
 				i, phi, expect, actual,
@@ -135,7 +135,7 @@ func Test_Time_to_perihelion(t *testing.T) {
 		// expect
 		expect := expected_speeds[i]
 
-		if !test_tools.Float64_equality(expect, actual) {
+		if !comparison.Float64_equality(expect, actual) {
 			t.Fatalf(
 				"Test %v, phi = %v, failed: expect = %v, actual = %v",
 				i, phi, expect, actual,
@@ -160,7 +160,7 @@ func Test_Phi_for_time_to_perihelion(t *testing.T) {
 		t.Fatalf("Test failed: no error expected but returned: %v", err)
 	}
 
-	if !test_tools.Float64_equality(expect[0], actual) || !test_tools.Float64_equality(expect[0], actual) {
+	if !comparison.Float64_equality(expect[0], actual) || !comparison.Float64_equality(expect[0], actual) {
 		t.Fatalf(
 			"Test t = %v, failed: expect = +/- %v, actual = %v",
 			time, expect[0], actual,
@@ -179,7 +179,7 @@ func Test_Tangent_to_ellipse(t *testing.T) {
 		math.Pi - math.Atan(orbit.Semi_minor/orbit.Linear_eccentricity),
 	}
 
-	expected_tangents := []r2.Vec{
+	expected_tangents := []vector.Vec{
 		{X: 0.0, Y: 1.0},
 		{X: 0.0, Y: -1.0},
 		{X: -1.0, Y: 0.0},
@@ -191,12 +191,12 @@ func Test_Tangent_to_ellipse(t *testing.T) {
 		phi := sample_phis[i]
 
 		// when
-		actual := Tangent_to_elliplse(phi, &orbit)
+		actual := Tangent_along_ellipse(phi, &orbit)
 
 		// expect
 		expect := expected_tangents[i]
 
-		if !test_tools.Vector_equality(expect, actual) {
+		if !vector.Are_equal(expect, actual) {
 			t.Fatalf(
 				"Test %v, phi = %v, failed: expect = %v, actual = %v",
 				i, phi, expect, actual,

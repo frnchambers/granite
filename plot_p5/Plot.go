@@ -1,6 +1,6 @@
-package plot
+package plot_p5
 
-import "gonum.org/v1/gonum/spatial/r2"
+import "github.com/granite/vector"
 
 type Simulation_t struct {
 	Trail_length               int
@@ -9,6 +9,6 @@ type Simulation_t struct {
 }
 
 type Plottable_t interface {
-	Update(r2.Vec)
+	Update(vector.Vec)
 	Plot()
 }
