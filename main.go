@@ -24,10 +24,10 @@ var (
 
 	sim plot_p5.Simulation_t
 
-	solar_dot  plot_p5.Dot_t
-	dots       []plot_p5.Dot_t
-	trails     []plot_p5.Trail_t
-	velocities []plot_p5.Arrow_t
+	solar_pulse plot_p5.Pulse_t
+	dots        []plot_p5.Dot_t
+	trails      []plot_p5.Trail_t
+	velocities  []plot_p5.Arrow_t
 
 	stepper integrator.Stepper_t
 )
@@ -56,15 +56,15 @@ func initialise_satellite(
 
 	system = physics.System_t{Force: kepler.New_massive_body(&orbit), Particles: particles}
 
-	solar_dot = plot_p5.New_static_dot(color.RGBA{R: 246, G: 244, B: 129, A: 255}, 5.0e-2, solar_position)
+	solar_pulse = plot_p5.New_pulse(color.RGBA{R: 246, G: 244, B: 129, A: 255}, solar_position, n_steps, 2.0e-2, 6.0e-2)
 	dots, trails, velocities = plot_p5.From_system(system.Particles, sim.Dot_size, sim.Trail_length)
 	stepper = integrator.New_stepper(integrator.Default_algorithm())
 }
 
 func output_variables() {
-	fmt.Print("sol = ", solar_dot, "\n")
+	fmt.Print("sol = ", solar_pulse, "\n")
 	fmt.Print("system: ", system, "\n")
-	fmt.Printf("starting distance from body = %.2e\n", r2.Norm(r2.Sub(solar_dot.Position(), system.Particles[0].Position)))
+	fmt.Printf("starting distance from body = %.2e\n", r2.Norm(r2.Sub(solar_pulse.Position(), system.Particles[0].Position)))
 	fmt.Print("stepper: ", stepper, "\n")
 }
 
@@ -109,7 +109,8 @@ func draw_frame() {
 	// p5.Fill(color.Black)
 	// p5.Ellipse(-orbit.Linear_eccentricity, 0.0, 2.0*orbit.Semi_major, 2.0*orbit.Semi_minor)
 
-	solar_dot.Plot()
+	solar_pulse.Update()
+	solar_pulse.Plot()
 
 	for i := range dots {
 		dots[i].Plot()

@@ -27,8 +27,6 @@ func New_massive_body(orbit *Orbit_t) physics.Gravity_massive_body_t {
 }
 
 func New_simulation_parameters(n_steps, n_trails int, orbit *Orbit_t) plot_p5.Simulation_t {
-	// n_trails := 20
-	// n_steps := 500
 	dt := orbit.Period / float64(n_steps)
 
 	return plot_p5.Simulation_t{
