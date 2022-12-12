@@ -32,27 +32,16 @@ var (
 	stepper integrator.Stepper_t
 )
 
-func initialise_satellite() {
-	a := 1.0
-	ecc := 0.7
-	period := 1.0
-
+func initialise_satellite(
+	a, ecc, period float64,
+	n_steps, n_trails int,
+	axis_offset_angle, particle_offset_angle float64,
+	offset_times []float64,
+) {
 	solar_position := vector.Vec{X: 0, Y: 0}
+
 	orbit = kepler.New_orbit(a, ecc, period)
-
-	time_lag := orbit.Period / 16.0
-	offset_times := []float64{
-		0.0 * time_lag,
-		1.0 * time_lag,
-		2.0 * time_lag,
-	}
 	n_particles := len(offset_times)
-
-	axis_offset_angle := math.Pi / 6.0
-	particle_offset_angle := math.Pi / 64.0
-
-	n_steps := 360
-	n_trails := 5
 	sim = kepler.New_simulation_parameters(n_steps, n_trails, &orbit)
 
 	particles := make([]physics.Particle_t, n_particles)
@@ -85,7 +74,19 @@ func main() {
 }
 
 func run_simulation() {
-	initialise_satellite()
+	a, ecc, period := 1.0, 0.7, 1.0
+
+	n_steps, n_trails := 360, 5
+	axis_offset_angle, particle_offset_angle := math.Pi/6.0, math.Pi/64.0
+
+	time_lag := period / 16.0
+	offset_times := []float64{
+		0.0 * time_lag,
+		1.0 * time_lag,
+		2.0 * time_lag,
+	}
+
+	initialise_satellite(a, ecc, period, n_steps, n_trails, axis_offset_angle, particle_offset_angle, offset_times)
 	output_variables()
 	p5.Run(setup, draw_frame)
 }
