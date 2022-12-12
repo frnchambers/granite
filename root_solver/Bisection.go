@@ -9,7 +9,7 @@ import (
 
 const (
 	DEFAULT_MAXIMUM_ITERATIONS = 100
-	DEFAULT_TOLERANCE          = comparison.DEFAULT_FLOAT64_PERCENTAGE_DIFFERENCE_TOLERANCE
+	DEFAULT_TOLERANCE          = comparison.DEFAULT_FLOAT64_FRACTION_DIFFERENCE_TOLERANCE
 )
 
 func single_variable_handler(x float64, fn *func(float64) float64) float64 {

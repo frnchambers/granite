@@ -4,16 +4,18 @@ import "testing"
 
 func Test_compare_float64(t *testing.T) {
 
+	default_tol := DEFAULT_FLOAT64_FRACTION_DIFFERENCE_TOLERANCE
+
 	tests := []struct {
 		a, b, tol float64
 		expect    bool
 	}{
-		{a: 1.0, b: 1.0, tol: DEFAULT_FLOAT64_PERCENTAGE_DIFFERENCE_TOLERANCE, expect: true},
-		{a: 1.0, b: 2.0, tol: DEFAULT_FLOAT64_PERCENTAGE_DIFFERENCE_TOLERANCE, expect: false},
-		{a: 0.0, b: 1.0, tol: DEFAULT_FLOAT64_PERCENTAGE_DIFFERENCE_TOLERANCE, expect: false},
-		{a: 1.0, b: 0.0, tol: DEFAULT_FLOAT64_PERCENTAGE_DIFFERENCE_TOLERANCE, expect: false},
-		{a: 1.0, b: 1.0 + 1.0e-9, tol: 1.0e-3, expect: true},
-		// {a: 1.0, b: DEFAULT_FLOAT64_PERCENTAGE_DIFFERENCE_TOLERANCE, expect: false},
+		{a: 1.0, b: 1.0, tol: default_tol, expect: true},
+		{a: 1.0, b: 2.0, tol: default_tol, expect: false},
+		{a: 1.0, b: 1.0 * (1.0 + default_tol), tol: default_tol, expect: false},
+		{a: 1.0, b: 0.0, tol: default_tol, expect: false},
+		{a: 0.0, b: 0.0, tol: default_tol, expect: true},
+		{a: 1.0, b: default_tol, tol: default_tol, expect: false},
 	}
 
 	for i, test := range tests {

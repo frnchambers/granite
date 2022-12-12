@@ -3,11 +3,11 @@ package comparison
 import "math"
 
 const (
-	DEFAULT_FLOAT64_PERCENTAGE_DIFFERENCE_TOLERANCE = 1.0e-9
+	DEFAULT_FLOAT64_FRACTION_DIFFERENCE_TOLERANCE = 1.0e-9
 )
 
 func Float64_equality(a, b float64) bool {
-	return Float64_equality_within_tolerance(a, b, DEFAULT_FLOAT64_PERCENTAGE_DIFFERENCE_TOLERANCE)
+	return Float64_equality_within_tolerance(a, b, DEFAULT_FLOAT64_FRACTION_DIFFERENCE_TOLERANCE)
 }
 
 func Float64_equality_within_tolerance(a, b, tol float64) bool {
@@ -17,10 +17,8 @@ func Float64_equality_within_tolerance(a, b, tol float64) bool {
 		return true
 	case math.Abs(b) < tol:
 		return difference < tol
-	case math.Abs(difference/b) > tol:
-		return false
 	default:
-		return false
+		return math.Abs(difference/b) < tol
 	}
 }
 

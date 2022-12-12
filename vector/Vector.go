@@ -20,7 +20,7 @@ func Null() Vec {
 }
 
 func Are_equal(v, w Vec) bool {
-	return Are_equal_within_tolerance(v, w, comparison.DEFAULT_FLOAT64_PERCENTAGE_DIFFERENCE_TOLERANCE)
+	return Are_equal_within_tolerance(v, w, comparison.DEFAULT_FLOAT64_FRACTION_DIFFERENCE_TOLERANCE)
 }
 
 func Are_equal_within_tolerance(v, w Vec, tol float64) bool {
