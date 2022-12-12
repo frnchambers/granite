@@ -8,59 +8,49 @@ import (
 
 func Test_reverse_array(t *testing.T) {
 
-	// given
-	array := []int{1, 2, 3, 4}
+	tests := []struct {
+		input, expect []int
+	}{
+		{input: []int{1, 2, 3, 4}, expect: []int{4, 3, 2, 1}},
+		{input: []int{1, 2, 5}, expect: []int{5, 2, 1}},
+	}
 
-	// when
-	actual := make_reverse_array(array)
+	for i, test := range tests {
 
-	// expect
-	expected := []int{4, 3, 2, 1}
+		// when
+		actual := make_reverse_array(test.input)
 
-	if !comparison.Are_int_slices_equal(expected, actual) {
-		t.Fatalf(
-			"Test_reverse_array: expected_array = %v, actual_array = %v",
-			expected, actual,
-		)
+		if !comparison.Are_int_slices_equal(actual, test.expect) {
+			t.Fatalf(
+				"Test, i = %v, %v, failed : expect = %v, actual = %v",
+				i, test, test.expect, actual,
+			)
+		}
 	}
 }
 
-func Test_mirror_even_array(t *testing.T) {
+func Test_mirror_array(t *testing.T) {
 
-	// given
-	is_even := true
-	array := []int{1, 2, 3, 4}
-
-	// when
-	actual := make_mirror_array(array, is_even)
-
-	// expect
-	expected := []int{1, 2, 3, 4, 4, 3, 2, 1}
-
-	if !comparison.Are_int_slices_equal(expected, actual) {
-		t.Fatalf(
-			"Test_mirror_even_array: expected_array = %v, actual_array = %v",
-			expected, actual,
-		)
+	tests := []struct {
+		input, expect []int
+		is_even       bool
+	}{
+		{input: []int{1, 2, 3, 4}, is_even: true, expect: []int{1, 2, 3, 4, 4, 3, 2, 1}},
+		{input: []int{1, 2, 5}, is_even: true, expect: []int{1, 2, 5, 5, 2, 1}},
+		{input: []int{3, 4, 6}, is_even: false, expect: []int{3, 4, 6, 4, 3}},
+		{input: []int{1, 3, 5}, is_even: false, expect: []int{1, 3, 5, 3, 1}},
 	}
-}
 
-func Test_mirror_odd_array(t *testing.T) {
+	for i, test := range tests {
 
-	// given
-	is_even := false
-	array := []int{1, 2, 3, 4}
+		// when
+		actual := make_mirror_array(test.input, test.is_even)
 
-	// when
-	actual := make_mirror_array(array, is_even)
-
-	// expect
-	expected := []int{1, 2, 3, 4, 3, 2, 1}
-
-	if !comparison.Are_int_slices_equal(expected, actual) {
-		t.Fatalf(
-			"Test_mirror_even_array: expected_array = %v, actual_array = %v",
-			expected, actual,
-		)
+		if !comparison.Are_int_slices_equal(actual, test.expect) {
+			t.Fatalf(
+				"Test, i = %v, %v, failed : expect = %v, actual = %v",
+				i, test, test.expect, actual,
+			)
+		}
 	}
 }
