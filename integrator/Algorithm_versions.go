@@ -8,30 +8,30 @@ func Default_algorithm() Algorithm_t {
 
 func Choose_algorithm(required_error_order int) (algo Algorithm_t) {
 	if required_error_order >= 6 {
-		algo = version_3_4_1_v_1()
+		algo = Version_3_4_1_v_1()
 	} else if required_error_order >= 4 {
-		algo = version_3_2_1_v_2()
+		algo = Version_3_2_1_v_2()
 	} else {
-		algo = version_3_1_1_v_2()
+		algo = Version_3_1_1_v_2()
 	}
 	return
 }
 
 func Default_O2_algorithm() Algorithm_t {
-	return version_3_1_1_v_2()
+	return Version_3_1_1_v_2()
 }
 
 func Default_O4_algorithm() Algorithm_t {
-	return version_3_2_1_v_2()
+	return Version_3_2_1_v_2()
 }
 
 func Default_O6_algorithm() Algorithm_t {
-	return version_3_4_1_v_1()
+	return Version_3_4_1_v_1()
 }
 
 /* --------------------------- 3-stage algorithms --------------------------- */
 
-// func version_3_1_1_v_1() stepper_params_t {
+// func Version_3_1_1_v_1() stepper_params_t {
 // 	return stepper_params_t{
 // 		is_velocity_first:     true,
 // 		stages:                3,
@@ -43,7 +43,7 @@ func Default_O6_algorithm() Algorithm_t {
 // 	}
 // }
 
-func version_3_1_1_v_2() Algorithm_t { // velocity-verlet algorithm
+func Version_3_1_1_v_2() Algorithm_t { // velocity-verlet algorithm
 	return Algorithm_t{
 		is_velocity_version:          true,
 		stages:                       3,
@@ -55,7 +55,7 @@ func version_3_1_1_v_2() Algorithm_t { // velocity-verlet algorithm
 	}
 }
 
-func version_3_1_2_v_1() Algorithm_t {
+func Version_3_1_2_v_1() Algorithm_t {
 	return Algorithm_t{
 		is_velocity_version:          false,
 		stages:                       3,
@@ -67,7 +67,7 @@ func version_3_1_2_v_1() Algorithm_t {
 	}
 }
 
-// func version_3_1_2_v_2() stepper_params_t {
+// func Version_3_1_2_v_2() stepper_params_t {
 // 	return stepper_params_t{
 // 		is_velocity_first:     false,
 // 		stages:                3,
@@ -81,7 +81,7 @@ func version_3_1_2_v_1() Algorithm_t {
 
 /* --------------------------- 3-stage algorithms --------------------------- */
 
-// func version_3_2_1_v_1() stepper_params_t {
+// func Version_3_2_1_v_1() stepper_params_t {
 // 	lambda := 1.0 / 6.0
 // 	return stepper_params_t{
 // 		is_velocity_first:     true,
@@ -94,7 +94,7 @@ func version_3_1_2_v_1() Algorithm_t {
 // 	}
 // }
 
-func version_3_2_1_v_2() Algorithm_t {
+func Version_3_2_1_v_2() Algorithm_t {
 	lambda := 1.0 / 6.0
 	return Algorithm_t{
 		is_velocity_version:          true,
@@ -107,7 +107,7 @@ func version_3_2_1_v_2() Algorithm_t {
 	}
 }
 
-// func version_3_2_1_v_3() stepper_params_t {
+// func Version_3_2_1_v_3() stepper_params_t {
 // 	lambda := 1.0 / 6.0
 // 	return stepper_params_t{
 // 		is_velocity_first:     true,
@@ -120,7 +120,7 @@ func version_3_2_1_v_2() Algorithm_t {
 // 	}
 // }
 
-// func version_3_2_1_v_4() stepper_params_t {
+// func Version_3_2_1_v_4() stepper_params_t {
 // 	lambda := 0.1931833275037836
 // 	return stepper_params_t{
 // 		is_velocity_first:     true,
@@ -133,7 +133,7 @@ func version_3_2_1_v_2() Algorithm_t {
 // 	}
 // }
 
-// func version_3_2_2_v_1() stepper_params_t {
+// func Version_3_2_2_v_1() stepper_params_t {
 // 	lambda := 0.5 * (1.0 - 1.0/math.Sqrt(3.0))
 // 	xi := (2.0 - math.Sqrt(3.0)) / 48.0
 // 	return stepper_params_t{
@@ -147,7 +147,7 @@ func version_3_2_1_v_2() Algorithm_t {
 // 	}
 // }
 
-// func version_3_2_2_v_2() stepper_params_t {
+// func Version_3_2_2_v_2() stepper_params_t {
 // 	lambda := 0.5 * (1.0 + 1.0/math.Sqrt(3.0))
 // 	xi := (2.0 + math.Sqrt(3.0)) / 48.0
 // 	return stepper_params_t{
@@ -163,7 +163,7 @@ func version_3_2_1_v_2() Algorithm_t {
 
 /* --------------------------- 9-stage algorithms --------------------------- */
 
-func version_3_4_1_v_1() Algorithm_t {
+func Version_3_4_1_v_1() Algorithm_t {
 	cube_root := math.Cbrt(675.0 + 75*math.Sqrt(6.0))
 	theta := 0.5 + cube_root/30.0 + 5.0/(2.0*cube_root)
 	phi := theta / 3.0
@@ -182,7 +182,7 @@ func version_3_4_1_v_1() Algorithm_t {
 	}
 }
 
-func version_3_4_1_v_2() Algorithm_t {
+func Version_3_4_1_v_2() Algorithm_t {
 	theta := 0.1705755127786631
 	phi := 0.4775180236616381e-1
 	lambda := 0.2739456420927671
@@ -202,7 +202,7 @@ func version_3_4_1_v_2() Algorithm_t {
 
 /* -------------------------- 11-stage algorithms --------------------------- */
 
-func version_3_5_1_v_2() Algorithm_t {
+func Version_3_5_1_v_2() Algorithm_t {
 	root_five := math.Sqrt(5.0)
 	nest_root := math.Sqrt(50.0 + 22.0*root_five)
 	xi_chi_inc := nest_root * (1.0/2880.0 + root_five/1152.0)
@@ -224,7 +224,7 @@ func version_3_5_1_v_2() Algorithm_t {
 	}
 }
 
-func version_3_5_1_v_3() Algorithm_t {
+func Version_3_5_1_v_3() Algorithm_t {
 	rho := 0.2742082240034209
 	theta := 0.4812780570021632
 	phi := 8.350330494925359e-2

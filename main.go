@@ -6,6 +6,7 @@ import (
 	"math"
 
 	"github.com/go-p5/p5"
+	"github.com/granite/comparison"
 	"github.com/granite/integrator"
 	"github.com/granite/kepler"
 	"github.com/granite/physics"
@@ -48,12 +49,19 @@ func initialise_satellites(
 
 	particles := make([]physics.Particle_t, n_particles)
 	for i, time := range offset_times {
-		phi, err := kepler.Phi_for_time_to_perihelion(time, &orbit)
-		if err != nil {
-			panic(err)
+		phi := 0.0
+		if !comparison.Float64_equality(time, 0.0) {
+			var err error = nil
+			phi, err = kepler.Phi_for_time_to_perihelion(time, &orbit)
+			if err != nil {
+				panic(err)
+			}
 		}
 		particles[i] = kepler.New_satellite(phi, &orbit)
-		kepler.Rotate_orbit(&particles[i], -axis_offset_angle-float64(i)*particle_offset_angle)
+		if !comparison.Float64_equality(axis_offset_angle, 0.0) &&
+			!comparison.Float64_equality(particle_offset_angle, 0.0) {
+			kepler.Rotate_orbit(&particles[i], -axis_offset_angle-float64(i)*particle_offset_angle)
+		}
 	}
 
 	system = physics.System_t{Force: kepler.New_massive_body(&orbit), Particles: particles}
@@ -110,21 +118,18 @@ func highly_eccentric_settings() {
 	n_steps, n_trails := 1200, 20
 	axis_offset_angle, particle_offset_angle := 0.0, 0.0
 
-	time_lag := period / 16.0
-	offset_times := []float64{
-		0.0 * time_lag,
-		// 1.0 * time_lag,
-		// 2.0 * time_lag,
-	}
+	offset_times := []float64{period / 2.0}
 
 	initialise_satellites(a, ecc, period, n_steps, n_trails, axis_offset_angle, particle_offset_angle, offset_times)
 
-	stepper = integrator.New_stepper(integrator.Default_O6_algorithm())
+	// stepper = integrator.New_stepper(integrator.Default_O6_algorithm())
+	// stepper = integrator.New_stepper(integrator.Version_3_5_1_v_3())
+	stepper = integrator.New_stepper(integrator.Version_3_5_1_v_2())
 }
 
 func run_simulation() {
-	// granite_settings()
-	highly_eccentric_settings()
+	granite_settings()
+	// highly_eccentric_settings()
 	output_variables()
 	p5.Run(setup, draw_frame)
 }
@@ -148,9 +153,7 @@ func draw_frame() {
 	solar_pulse.Update_time()
 	solar_pulse.Plot()
 
-	p5.Stroke(color.White)
-	p5.Fill(color.Transparent)
-	p5.Ellipse(-orbit.Linear_eccentricity, 0, orbit.Semi_major*2, orbit.Semi_minor*2)
+	// p5.Stroke(color.White) 0, orbit.Semi_major*2, orbit.Semi_minor*2)
 
 	for i := range dots {
 		// dots[i].Plot()
