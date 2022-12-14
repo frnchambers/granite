@@ -16,7 +16,7 @@ func New_satellite(phi float64, orbit *Orbit_t) physics.Particle_t {
 }
 
 func New_satellite_from_perihelion(orbit *Orbit_t) physics.Particle_t {
-	position := cartesian_position_from_polar(orbit.Perihelion, 0.0)
+	position := vector.Cartesian_position_from_polar(orbit.Perihelion, 0.0)
 	velocoity := vector.Vec{X: 0.0, Y: orbit.V_perihelion}
 	return physics.New_particle("", 1.0, position, velocoity)
 }

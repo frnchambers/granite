@@ -5,6 +5,7 @@ import "fmt"
 type System_t struct {
 	Force     Force_t
 	Particles []Particle_t
+	Time      float64
 }
 
 func (system *System_t) N_particles() int {

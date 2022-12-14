@@ -24,12 +24,12 @@ func New_lennard_jones(sigma, epsilon float64) Lennard_jones_t {
 	}
 }
 
-func (lj *Lennard_jones_t) Calculate_forces(particles []Particle_t) {
+func (lj Lennard_jones_t) Calculate_forces(particles []Particle_t) {
 	Reset_forces(particles)
 	Calculate_inter_particle_forces(&lj.implementation, particles)
 }
 
-func (lj *Lennard_jones_t) Calculate_force_gradients(particles []Particle_t) {
+func (lj Lennard_jones_t) Calculate_force_gradients(particles []Particle_t) {
 	Reset_force_gradients(particles)
 	Calculate_inter_particle_forces(&lj.implementation, particles)
 }
@@ -45,7 +45,7 @@ func (lj *Lennard_jones_potential_t) force_on_p_from_q(p, q *Particle_t) vector.
 		sigma_r   = lj.sigma / distance
 		sigma_r_6 = math.Pow(sigma_r, 6)
 	)
-	return r2.Scale(24.0*lj.epsilon/lj.sigma*sigma_r_6*(1.0-2.0*sigma_r_6)/distance, direction)
+	return r2.Scale(-24.0*lj.epsilon/lj.sigma*sigma_r_6*(1.0-2.0*sigma_r_6)/distance, direction)
 }
 
 func (lj *Lennard_jones_potential_t) force_gradient_on_p_from_q(p, q *Particle_t) (force_gradient_q_on_p vector.Vec) {

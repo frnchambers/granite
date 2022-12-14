@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	DEFAULT_VELOCITY_SCALE = 0.2
+	DEFAULT_VELOCITY_SCALE = 2.0
 )
 
 func Update_dots(dots []Dot_t, particles []physics.Particle_t) {
@@ -102,6 +102,7 @@ func Trails_from_system(particles []physics.Particle_t, trail_length int) (
 	return
 }
 
+// func Velocities_from_system(particles []physics.Particle_t, scale_factor float64) (
 func Velocities_from_system(particles []physics.Particle_t) (
 	velocities []Arrow_t,
 ) {

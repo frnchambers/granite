@@ -29,6 +29,10 @@ func Default_O6_algorithm() Algorithm_t {
 	return Version_3_4_1_v_1()
 }
 
+func Velocity_verlet_algorithm() Algorithm_t {
+	return Version_3_1_1_v_2()
+}
+
 /* --------------------------- 3-stage algorithms --------------------------- */
 
 // func Version_3_1_1_v_1() stepper_params_t {

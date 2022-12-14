@@ -49,7 +49,7 @@ func Tangent_along_ellipse(phi float64, orbit *Orbit_t) vector.Vec {
 
 func Position_along_elliplse(phi float64, orbit *Orbit_t) vector.Vec {
 	r := Distance_from_centre(phi, orbit)
-	return cartesian_position_from_polar(r, phi)
+	return vector.Cartesian_position_from_polar(r, phi)
 }
 
 func Distance_from_centre(phi float64, orbit *Orbit_t) float64 {
@@ -62,6 +62,10 @@ func Speed_from_distance(distance float64, orbit *Orbit_t) float64 {
 
 func Speed_along_ellipse(phi float64, orbit *Orbit_t) float64 {
 	return Speed_from_distance(Distance_from_centre(phi, orbit), orbit)
+}
+
+func Speed_along_circle(a, mu float64) float64 {
+	return math.Sqrt(mu / a)
 }
 
 func Time_to_perihelion(phi float64, orbit *Orbit_t) float64 {
@@ -87,18 +91,6 @@ func tau(phi, ecc float64) (output float64) {
 	// one_m_eccsq := 1.0 - ecc*ecc
 	return 2.0*math.Atan(math.Sqrt((1.0-ecc)/(1.0+ecc))*math.Tan(0.5*phi)) -
 		ecc*math.Sqrt(1-ecc*ecc)*math.Sin(phi)/chi(phi, ecc)
-}
-
-func cartesian_position_from_polar(r, phi float64) vector.Vec {
-	return vector.Vec{X: x_from_polar(r, phi), Y: y_from_polar(r, phi)}
-}
-
-func x_from_polar(r, phi float64) float64 {
-	return r * math.Cos(phi)
-}
-
-func y_from_polar(r, phi float64) float64 {
-	return r * math.Sin(phi)
 }
 
 func (orbit Orbit_t) String() (output string) {
