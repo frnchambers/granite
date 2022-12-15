@@ -25,6 +25,10 @@ func (p *Particle_t) Reset_force_gradient_to_zero() {
 	p.Force_gradient = vector.Vec{X: 0, Y: 0}
 }
 
+func (p *Particle_t) Kinetic_energy() float64 {
+	return 0.5 * p.Mass * r2.Norm2(p.Velocity)
+}
+
 func (p *Particle_t) Increment_position_using_velocity(timestep float64) {
 	p.Position = r2.Add(p.Position, r2.Scale(timestep, p.Velocity))
 }

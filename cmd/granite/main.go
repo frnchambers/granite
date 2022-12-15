@@ -57,7 +57,7 @@ func initialise_satellites(
 				panic(err)
 			}
 		}
-		particles[i] = kepler.New_satellite(phi, &orbit)
+		particles[i] = kepler.New_satellite(phi, 1.0, &orbit)
 		if !comparison.Float64_equality(axis_offset_angle, 0.0) &&
 			!comparison.Float64_equality(particle_offset_angle, 0.0) {
 			kepler.Rotate_orbit(&particles[i], -axis_offset_angle-float64(i)*particle_offset_angle)

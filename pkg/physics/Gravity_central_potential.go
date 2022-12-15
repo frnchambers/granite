@@ -30,6 +30,10 @@ func New_massive_body(particle Particle_t) Gravity_massive_body_t {
 	}
 }
 
+func (g Gravity_massive_body_t) Calculate_potentials(particles []Particle_t) float64 {
+	return Calculate_external_potentials(&g.Gravitation_massive_body, particles)
+}
+
 func (g Gravity_massive_body_t) Calculate_forces(particles []Particle_t) {
 	Reset_forces(particles)
 	Calculate_external_forces(&g.Gravitation_massive_body, particles)
@@ -50,6 +54,10 @@ func (g *Gravitation_massive_body_t) Body_mass() float64 {
 }
 func (g *Gravitation_massive_body_t) Body_position() vector.Vec {
 	return g.body.Position
+}
+
+func (central_mass *Gravitation_massive_body_t) potential(p *Particle_t) float64 {
+	return Gravitational_interaction_t{}.potential_between_p_and_q(p, &central_mass.body)
 }
 
 func (central_mass *Gravitation_massive_body_t) force(p *Particle_t) vector.Vec {

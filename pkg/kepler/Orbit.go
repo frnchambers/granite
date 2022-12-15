@@ -94,12 +94,12 @@ func tau(phi, ecc float64) (output float64) {
 }
 
 func (orbit Orbit_t) String() (output string) {
-	output = fmt.Sprintf("Orbit_t: {")
+	output = fmt.Sprintf("Orbit_t: {\n")
 	output += fmt.Sprintf("Semi-major axis = %.2e\n", orbit.Semi_major)
 	output += fmt.Sprintf("Semi-minor axis = %.2e\n", orbit.Semi_minor)
 	output += fmt.Sprintf("Eccentricity = %.2e\n", orbit.Eccentricity)
 	output += fmt.Sprintf("Linear-eccentricity = %.2e\n", orbit.Linear_eccentricity)
-	output += fmt.Sprintf("Mu axis             = %.2e\n", orbit.Mu)
+	output += fmt.Sprintf("Mu                  = %.2e\n", orbit.Mu)
 	output += fmt.Sprintf("Period          = %.2e\n", orbit.Period)
 	output += fmt.Sprintf("Energy per mass = %.2e\n", orbit.Energy_per_mass)
 	output += fmt.Sprintf("R_aphelion   = %.2e\n", orbit.Aphelion)

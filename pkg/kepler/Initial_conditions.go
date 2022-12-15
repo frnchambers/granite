@@ -7,12 +7,12 @@ import (
 	"gonum.org/v1/gonum/spatial/r2"
 )
 
-func New_satellite(phi float64, orbit *Orbit_t) physics.Particle_t {
+func New_satellite(phi, mass float64, orbit *Orbit_t) physics.Particle_t {
 
 	position := Position_along_elliplse(phi, orbit)
 	velocoity := r2.Scale(Speed_along_ellipse(phi, orbit), Tangent_along_ellipse(phi, orbit))
 
-	return physics.New_particle("", 1.0, position, velocoity)
+	return physics.New_particle("", mass, position, velocoity)
 }
 
 func New_satellite_from_perihelion(orbit *Orbit_t) physics.Particle_t {
@@ -31,7 +31,7 @@ func New_simulation_parameters(n_steps, n_trails int, orbit *Orbit_t) plot_p5.Si
 
 	return plot_p5.Simulation_t{
 		Trail_length: n_trails,
-		Dot_size:     2.0e-2,
+		Dot_size:     1.0e-2,
 		X_min:        -2*orbit.Semi_major - orbit.Linear_eccentricity,
 		X_max:        2*orbit.Semi_major - orbit.Linear_eccentricity,
 		Y_min:        -orbit.Semi_major * 2.0,

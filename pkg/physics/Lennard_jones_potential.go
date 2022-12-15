@@ -24,6 +24,10 @@ func New_lennard_jones(sigma, epsilon float64) Lennard_jones_t {
 	}
 }
 
+func (lj Lennard_jones_t) Calculate_potentials(particles []Particle_t) float64 {
+	return Calculate_inter_particle_potentials(&lj.implementation, particles)
+}
+
 func (lj Lennard_jones_t) Calculate_forces(particles []Particle_t) {
 	Reset_forces(particles)
 	Calculate_inter_particle_forces(&lj.implementation, particles)
@@ -36,6 +40,15 @@ func (lj Lennard_jones_t) Calculate_force_gradients(particles []Particle_t) {
 
 type Lennard_jones_potential_t struct {
 	sigma, epsilon float64
+}
+
+func (lj *Lennard_jones_potential_t) potential_between_p_and_q(p, q *Particle_t) float64 {
+	var (
+		distance  = r2.Norm(r2.Sub(p.Position, q.Position))
+		sigma_r   = lj.sigma / distance
+		sigma_r_6 = math.Pow(sigma_r, 6)
+	)
+	return -4.0 * lj.epsilon * sigma_r_6 * (1.0 - sigma_r_6)
 }
 
 func (lj *Lennard_jones_potential_t) force_on_p_from_q(p, q *Particle_t) vector.Vec {

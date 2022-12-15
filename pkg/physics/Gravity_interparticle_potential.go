@@ -16,6 +16,10 @@ func (Gravity_interparticle_t) String() string {
 
 type Gravity_interparticle_t struct{}
 
+func (Gravity_interparticle_t) Calculate_potentials(particles []Particle_t) float64 {
+	return Calculate_inter_particle_potentials(Gravitational_interaction_t{}, particles)
+}
+
 func (Gravity_interparticle_t) Calculate_forces(particles []Particle_t) {
 	Reset_forces(particles)
 	Calculate_inter_particle_forces(Gravitational_interaction_t{}, particles)
@@ -27,6 +31,13 @@ func (Gravity_interparticle_t) Calculate_force_gradients(particles []Particle_t)
 }
 
 type Gravitational_interaction_t struct{}
+
+func (Gravitational_interaction_t) potential_between_p_and_q(p, q *Particle_t) float64 {
+	var (
+		distance = r2.Norm(r2.Sub(p.Position, q.Position))
+	)
+	return -G * p.Mass * q.Mass / distance
+}
 
 func (Gravitational_interaction_t) force_on_p_from_q(p, q *Particle_t) vector.Vec {
 	var (

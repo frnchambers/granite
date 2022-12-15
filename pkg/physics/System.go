@@ -12,6 +12,22 @@ func (system *System_t) N_particles() int {
 	return len(system.Particles)
 }
 
+func (system *System_t) Energy() float64 {
+	return system.Kinetic_energy() + system.Potential_energy()
+}
+
+func (system *System_t) Kinetic_energy() (K float64) {
+	K = 0
+	for i := range system.Particles {
+		K += system.Particles[i].Kinetic_energy()
+	}
+	return
+}
+
+func (system *System_t) Potential_energy() float64 {
+	return system.Force.Calculate_potentials(system.Particles)
+}
+
 func (system *System_t) Calculate_forces() {
 	system.Force.Calculate_forces(system.Particles)
 }

@@ -29,6 +29,14 @@ func New_static_dot(col color.Color, diameter float64, position vector.Vec) (dot
 	return
 }
 
+func (dot *Dot_t) Set_col(col color.Color) {
+	dot.col = col
+}
+
+func (dot *Dot_t) Set_diameter(diameter float64) {
+	dot.diameter = diameter
+}
+
 func (dot *Dot_t) Update(new_position vector.Vec) {
 	dot.position = new_position
 }

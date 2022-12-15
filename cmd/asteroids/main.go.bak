@@ -48,33 +48,17 @@ func initialise_satellites(
 	orbit = kepler.New_orbit(a, 0.0, period)
 	sim = kepler.New_simulation_parameters(n_steps, n_trails, &orbit)
 
-	d_phi_max := math.Pi / 12.0
-	d_r_max := 8.0e-2
+	d_phi_max := math.Pi / 6.0
+	d_r_max := 2.0e-2
 
-	particles := make([]physics.Particle_t, n_particles+1)
-
-	particles[0] = physics.New_particle("Sun", orbit.Mu/physics.G, vector.Null(), vector.Null())
-
-	phi_jupiter := -math.Pi / 2
-	particles[1] = kepler.New_satellite(phi_jupiter, particles[0].Mass*1.0e-3, &orbit)
-	particles[1].Name = "Jupiter"
-
-	average_mass := particles[0].Mass * 1.0e-9
-	dm := 1.0
-
-	for i := 2; i < n_particles+1; i++ {
-		phi := phi_jupiter + float64(2*rand.Intn(2)-1)*rand.Float64()*d_phi_max
-		if i%2 == 0 {
-			phi += math.Pi / 3.0
-		} else {
-			phi -= math.Pi / 3.0
-		}
-		mass := average_mass * (1.0 + float64(2*rand.Intn(2)-1)*rand.Float64()*dm)
-		particles[i] = kepler.New_satellite(phi, mass, &orbit)
-		particles[i].Position = r2.Scale(1.0+float64(2*rand.Intn(2)-1)*rand.Float64()*d_r_max, particles[i].Position)
+	particles := make([]physics.Particle_t, n_particles)
+	for i := range particles {
+		phi := rand.Float64() * d_phi_max
+		particles[i] = kepler.New_satellite(phi, &orbit)
+		particles[i].Position = r2.Scale(1.0+float64(2*rand.Intn(2)-1)*rand.ExpFloat64()*d_r_max, particles[i].Position)
 	}
 
-	system = physics.System_t{Force: &physics.Gravity_interparticle_t{}, Particles: particles}
+	system = physics.System_t{Force: kepler.New_massive_body(&orbit), Particles: particles}
 
 	init_energy = system.Energy()
 
@@ -83,13 +67,6 @@ func initialise_satellites(
 	solar_pulse.Reset_time(0.0)
 
 	dots = plot_p5.Dots_from_system(system.Particles, sim.Dot_size)
-
-	dots[0].Set_col(color.RGBA{R: 246, G: 244, B: 129, A: 255})
-	dots[0].Set_diameter(1.0e-1)
-
-	// dots[1].Set_col(color.RGBA{R: 246, G: 244, B: 129, A: 255})
-	dots[1].Set_diameter(5.0e-2)
-
 	trails = plot_p5.Trails_from_system(system.Particles, sim.Trail_length)
 	velocities = plot_p5.Velocities_from_system(system.Particles)
 }
@@ -115,12 +92,12 @@ func main() {
 
 func highly_eccentric_settings() {
 	a, period := 1.0, 1.0
-	n_steps, n_trails := 350, 5
-	n_particles := 32
+	n_steps, n_trails := 150, 5
+	n_particles := 20
 
 	initialise_satellites(a, period, n_steps, n_trails, n_particles)
 
-	stepper = integrator.New_stepper(integrator.Default_O6_algorithm())
+	stepper = integrator.New_stepper(integrator.Default_O2_algorithm())
 	// stepper = integrator.New_stepper(integrator.Version_3_5_1_v_3())
 	// stepper = integrator.New_stepper(integrator.Version_3_5_1_v_2())
 }
@@ -150,8 +127,8 @@ func draw_positions_frame() {
 	plot_p5.Update_trails(trails, system.Particles)
 	// plot_p5.Update_velocities(velocities, system.Particles)
 
-	// solar_pulse.Update_time()
-	// solar_pulse.Plot()
+	solar_pulse.Update_time()
+	solar_pulse.Plot()
 
 	for i := range dots {
 		dots[i].Plot()

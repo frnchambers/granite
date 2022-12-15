@@ -6,18 +6,36 @@ import (
 )
 
 type Force_t interface {
+	Calculate_potentials(particles []Particle_t) float64
 	Calculate_forces(particles []Particle_t)
 	Calculate_force_gradients(particles []Particle_t)
 }
 
 type Interaction_force_t interface {
+	potential_between_p_and_q(p, q *Particle_t) float64
 	force_on_p_from_q(p, q *Particle_t) vector.Vec
 	force_gradient_on_p_from_q(p, q *Particle_t) vector.Vec
 }
 
 type External_force_t interface {
+	potential(p *Particle_t) float64
 	force(p *Particle_t) vector.Vec
 	force_gradient(p *Particle_t) vector.Vec
+}
+
+func Calculate_inter_particle_potentials(interaction Interaction_force_t, particles []Particle_t) (V float64) {
+	V = 0.0
+	n_particles := len(particles)
+	for i := range particles {
+		for j := i + 1; j < n_particles; j++ {
+			p := &particles[i]
+			q := &particles[j]
+
+			V += interaction.potential_between_p_and_q(p, q)
+
+		}
+	}
+	return
 }
 
 func Calculate_inter_particle_forces(interaction Interaction_force_t, particles []Particle_t) {
@@ -48,6 +66,14 @@ func Calculate_inter_particle_force_gradients(interaction Interaction_force_t, p
 			q.Force_gradient = r2.Sub(q.Force_gradient, force_gradient)
 		}
 	}
+}
+
+func Calculate_external_potentials(external External_force_t, particles []Particle_t) (V float64) {
+	V = 0
+	for i := range particles {
+		V += external.potential(&particles[i])
+	}
+	return
 }
 
 func Calculate_external_forces(external External_force_t, particles []Particle_t) {
