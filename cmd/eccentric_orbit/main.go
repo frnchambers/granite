@@ -32,8 +32,7 @@ var (
 	trails      []plot_p5.Trail_t
 	velocities  []plot_p5.Arrow_t
 
-	stepper    integrator.Stepper_t
-	step_count = 0
+	stepper integrator.Stepper_t
 )
 
 func initialise_satellites(
@@ -97,24 +96,17 @@ func main() {
 func granite_settings() {
 	a, ecc, period := 1.0, 0.7, 1.0
 
-	beats_per_minute := 95
-	steps_per_second := 30
-	beats_per_period := 4
-
-	steps_per_period := beats_per_period / beats_per_minute * steps_per_second * 60
-
-	n_trails := 7
+	n_steps, n_trails := 360, 7
 	axis_offset_angle, particle_offset_angle := math.Pi/6.0, math.Pi/64.0
 
-	lead_time := period / 4.0
 	time_lag := period / 16.0
 	offset_times := []float64{
-		0.0*time_lag + lead_time,
-		1.0*time_lag + lead_time,
-		2.0*time_lag + lead_time,
+		0.0 * time_lag,
+		1.0 * time_lag,
+		2.0 * time_lag,
 	}
 
-	initialise_satellites(a, ecc, period, steps_per_period, n_trails, axis_offset_angle, particle_offset_angle, offset_times)
+	initialise_satellites(a, ecc, period, n_steps, n_trails, axis_offset_angle, particle_offset_angle, offset_times)
 
 	stepper = integrator.New_stepper(integrator.Default_O4_algorithm())
 }
@@ -129,9 +121,9 @@ func highly_eccentric_settings() {
 
 	initialise_satellites(a, ecc, period, n_steps, n_trails, axis_offset_angle, particle_offset_angle, offset_times)
 
-	stepper = integrator.New_stepper(integrator.Default_O6_algorithm())
+	// stepper = integrator.New_stepper(integrator.Default_O6_algorithm())
 	// stepper = integrator.New_stepper(integrator.Version_3_5_1_v_3())
-	// stepper = integrator.New_stepper(integrator.Version_3_5_1_v_2())
+	stepper = integrator.New_stepper(integrator.Version_3_5_1_v_2())
 }
 
 func run_simulation() {
@@ -150,7 +142,6 @@ func setup() {
 func draw_frame() {
 
 	stepper.Run(&system, sim.Step_time)
-	step_count += 1
 
 	plot_p5.Update_dots(dots, system.Particles)
 	plot_p5.Update_pulses(pulses, system.Particles)
@@ -168,8 +159,4 @@ func draw_frame() {
 		trails[i].Plot()
 		// velocities[i].Plot()
 	}
-
-	filename := fmt.Sprintf("frames/frame_%.6d.png", step_count)
-	p5.Screenshot(filename)
-
 }

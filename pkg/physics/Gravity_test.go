@@ -26,7 +26,6 @@ func Test_Gravitational_force_two_particles(t *testing.T) {
 			"Gravitational_interparticle_force(): expect_force = %v, actual_force = %v",
 			expected_force, actual_force,
 		)
-
 	}
 
 }

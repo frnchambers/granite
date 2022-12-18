@@ -3,13 +3,12 @@ package main
 import (
 	"fmt"
 	"image/color"
-	"math"
-	"math/rand"
 
 	"github.com/go-p5/p5"
 	"github.com/granite/pkg/integrator"
 	"github.com/granite/pkg/physics"
 	"github.com/granite/pkg/plot_p5"
+	"github.com/granite/pkg/random"
 	"github.com/granite/pkg/vector"
 )
 
@@ -68,11 +67,11 @@ func initialise_molecules() {
 }
 
 func new_random_molecule(box_size, max_speed float64) physics.Particle_t {
-	return physics.New_particle("", 1.0, random_position(box_size), random_velocity(max_speed))
+	return physics.New_particle("", 1.0, random.Position(box_size), random.Velocity(max_speed))
 }
 
 func new_random_static_molecule(box_size, max_speed float64) physics.Particle_t {
-	return physics.New_particle("", 1.0, random_position(box_size), vector.Null())
+	return physics.New_particle("", 1.0, random.Position(box_size), vector.Null())
 }
 
 func output_variables() {
@@ -111,24 +110,4 @@ func draw_frame() {
 
 	// system.Time += sim.Step_time
 	// fmt.Println("t =", system.Time)
-}
-
-func random_position(D_max float64) vector.Vec {
-	return vector.New(random_signed_float64(D_max), random_signed_float64(D_max))
-}
-
-func random_velocity(v_max float64) vector.Vec {
-	v_abs := random_positive_float64(v_max)
-	phi := random_positive_float64(math.Pi * 2.0)
-	return vector.Cartesian_position_from_polar(v_abs, phi)
-}
-
-func random_signed_float64(x_max float64) float64 {
-	x_abs := rand.Float64() * x_max
-	x_sign := rand.Intn(2) - 1
-	return float64(x_sign) * x_abs
-}
-
-func random_positive_float64(x_max float64) float64 {
-	return rand.Float64() * x_max
 }

@@ -48,26 +48,28 @@ func initialise_satellites(
 	orbit = kepler.New_orbit(a, 0.0, period)
 	sim = kepler.New_simulation_parameters(n_steps, n_trails, &orbit)
 
-	d_phi_max := math.Pi / 12.0
-	d_r_max := 8.0e-2
+	d_phi_max := math.Pi / 6.0
+	d_r_max := 2.0e-2
 
 	particles := make([]physics.Particle_t, n_particles+1)
 
 	particles[0] = physics.New_particle("Sun", orbit.Mu/physics.G, vector.Null(), vector.Null())
 
 	phi_jupiter := -math.Pi / 2
-	particles[1] = kepler.New_satellite(phi_jupiter, particles[0].Mass*1.0e-3, &orbit)
+	jupiter_mass := particles[0].Mass * 1.0e-3
+	particles[1] = kepler.New_satellite(phi_jupiter, jupiter_mass, &orbit)
 	particles[1].Name = "Jupiter"
 
-	average_mass := particles[0].Mass * 1.0e-9
+	average_mass := particles[1].Mass * 1.0e-5
 	dm := 1.0
 
 	for i := 2; i < n_particles+1; i++ {
 		phi := phi_jupiter + float64(2*rand.Intn(2)-1)*rand.Float64()*d_phi_max
 		if i%2 == 0 {
-			phi += math.Pi / 3.0
+			// phi += math.Pi / 3.0
+			phi += math.Pi
 		} else {
-			phi -= math.Pi / 3.0
+			// phi -= math.Pi / 3.0
 		}
 		mass := average_mass * (1.0 + float64(2*rand.Intn(2)-1)*rand.Float64()*dm)
 		particles[i] = kepler.New_satellite(phi, mass, &orbit)
@@ -115,7 +117,7 @@ func main() {
 
 func highly_eccentric_settings() {
 	a, period := 1.0, 1.0
-	n_steps, n_trails := 350, 5
+	n_steps, n_trails := 200, 3
 	n_particles := 32
 
 	initialise_satellites(a, period, n_steps, n_trails, n_particles)

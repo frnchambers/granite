@@ -69,3 +69,13 @@ func (system System_t) String() (output string) {
 	output += "]"
 	return
 }
+
+func (system System_t) As_row() (output string) {
+	output = "System_t:\n"
+	output += fmt.Sprintf("Force: %v\nParticles: [\n", system.Force)
+	for _, p := range system.Particles {
+		output += p.String() + ",\n"
+	}
+	output += "]"
+	return
+}
