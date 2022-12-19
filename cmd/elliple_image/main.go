@@ -13,7 +13,7 @@ import (
 
 func main() {
 
-	orbit := kepler.New_orbit(1.0, 0.3, 1.0)
+	orbit := kepler.New_elliptical_orbit(1.0, 0.3, 1.0)
 	n := 81
 
 	lineData := elliplse_points(&orbit, n)
@@ -39,7 +39,7 @@ func main() {
 	}
 }
 
-func elliplse_points(orbit *kepler.Orbit_t, n int) (points plotter.XYs) {
+func elliplse_points(orbit *kepler.Elliptical_orbit_t, n int) (points plotter.XYs) {
 	points = make(plotter.XYs, n)
 
 	d_phi := 2.0 * math.Pi / float64(n-1)

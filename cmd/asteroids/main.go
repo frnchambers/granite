@@ -20,7 +20,7 @@ const (
 )
 
 var (
-	orbit  kepler.Orbit_t
+	orbit  kepler.Elliptical_orbit_t
 	system physics.System_t
 
 	sim plot_p5.Simulation_t
@@ -45,7 +45,7 @@ func initialise_satellites(
 ) {
 	solar_position := vector.Vec{X: 0, Y: 0}
 
-	orbit = kepler.New_orbit(a, 0.0, period)
+	orbit = kepler.New_elliptical_orbit(a, 0.0, period)
 	sim = kepler.New_simulation_parameters(n_steps, n_trails, &orbit)
 
 	d_phi_max := math.Pi / 6.0
@@ -66,10 +66,9 @@ func initialise_satellites(
 	for i := 2; i < n_particles+1; i++ {
 		phi := phi_jupiter + float64(2*rand.Intn(2)-1)*rand.Float64()*d_phi_max
 		if i%2 == 0 {
-			// phi += math.Pi / 3.0
-			phi += math.Pi
+			phi += math.Pi / 3.0
 		} else {
-			// phi -= math.Pi / 3.0
+			phi -= math.Pi / 3.0
 		}
 		mass := average_mass * (1.0 + float64(2*rand.Intn(2)-1)*rand.Float64()*dm)
 		particles[i] = kepler.New_satellite(phi, mass, &orbit)

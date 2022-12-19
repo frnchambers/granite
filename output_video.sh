@@ -1,6 +1,6 @@
 #!/bin/bash
 
-fps="30"
+fps="60"
 
 ffmpeg -framerate $fps -pattern_type glob -i 'frames/*.png' -c:v ffv1 out_$fps-fps.avi
 

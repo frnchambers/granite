@@ -13,14 +13,14 @@ import (
 	"gonum.org/v1/gonum/spatial/r2"
 )
 
-type Orbit_t struct {
+type Elliptical_orbit_t struct {
 	Semi_major, Semi_minor, Eccentricity, Linear_eccentricity,
 	Mu, Period, Energy_per_mass,
 	Aphelion, Perihelion,
 	V_aphelion, V_perihelion float64
 }
 
-func New_orbit(a, ecc, period float64) (orbit Orbit_t) {
+func New_elliptical_orbit(a, ecc, period float64) (orbit Elliptical_orbit_t) {
 	orbit.Semi_major = a
 	orbit.Eccentricity = ecc
 	orbit.Period = period
@@ -38,7 +38,7 @@ func New_orbit(a, ecc, period float64) (orbit Orbit_t) {
 	return
 }
 
-func Tangent_along_ellipse(phi float64, orbit *Orbit_t) vector.Vec {
+func Tangent_along_ellipse(phi float64, orbit *Elliptical_orbit_t) vector.Vec {
 	r := Distance_from_centre(phi, orbit)
 	chi := chi(phi, orbit.Eccentricity)
 	x, y := vector.Destructure(Position_along_elliplse(phi, orbit))
@@ -47,20 +47,20 @@ func Tangent_along_ellipse(phi float64, orbit *Orbit_t) vector.Vec {
 	return r2.Unit(vector.Vec{X: -y * scale, Y: x*scale + y_shift})
 }
 
-func Position_along_elliplse(phi float64, orbit *Orbit_t) vector.Vec {
+func Position_along_elliplse(phi float64, orbit *Elliptical_orbit_t) vector.Vec {
 	r := Distance_from_centre(phi, orbit)
 	return vector.Cartesian_position_from_polar(r, phi)
 }
 
-func Distance_from_centre(phi float64, orbit *Orbit_t) float64 {
+func Distance_from_centre(phi float64, orbit *Elliptical_orbit_t) float64 {
 	return orbit.Semi_major * (1.0 - orbit.Eccentricity*orbit.Eccentricity) / chi(phi, orbit.Eccentricity)
 }
 
-func Speed_from_distance(distance float64, orbit *Orbit_t) float64 {
+func Speed_from_distance(distance float64, orbit *Elliptical_orbit_t) float64 {
 	return math.Sqrt(orbit.Mu * (2.0/distance - 1.0/orbit.Semi_major))
 }
 
-func Speed_along_ellipse(phi float64, orbit *Orbit_t) float64 {
+func Speed_along_ellipse(phi float64, orbit *Elliptical_orbit_t) float64 {
 	return Speed_from_distance(Distance_from_centre(phi, orbit), orbit)
 }
 
@@ -68,11 +68,11 @@ func Speed_along_circle(a, mu float64) float64 {
 	return math.Sqrt(mu / a)
 }
 
-func Time_to_perihelion(phi float64, orbit *Orbit_t) float64 {
+func Time_to_perihelion(phi float64, orbit *Elliptical_orbit_t) float64 {
 	return math.Sqrt(orbit.Semi_major*orbit.Semi_major*orbit.Semi_major/orbit.Mu) * tau(phi, orbit.Eccentricity)
 }
 
-func Phi_for_time_to_perihelion(time float64, orbit *Orbit_t) (output float64, err error) {
+func Phi_for_time_to_perihelion(time float64, orbit *Elliptical_orbit_t) (output float64, err error) {
 	if math.Abs(time) > orbit.Period {
 		message := fmt.Sprintf("Invalid time, %.2e, must be less than one orbital period, %.2e", time, orbit.Period)
 		return output, errors.New(message)
@@ -93,7 +93,7 @@ func tau(phi, ecc float64) (output float64) {
 		ecc*math.Sqrt(1-ecc*ecc)*math.Sin(phi)/chi(phi, ecc)
 }
 
-func (orbit Orbit_t) String() (output string) {
+func (orbit Elliptical_orbit_t) String() (output string) {
 	output = fmt.Sprintf("Orbit_t: {\n")
 	output += fmt.Sprintf("Semi-major axis = %.2e\n", orbit.Semi_major)
 	output += fmt.Sprintf("Semi-minor axis = %.2e\n", orbit.Semi_minor)

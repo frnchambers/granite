@@ -20,7 +20,7 @@ const (
 )
 
 var (
-	orbit  kepler.Orbit_t
+	orbit  kepler.Elliptical_orbit_t
 	system physics.System_t
 
 	sim plot_p5.Simulation_t
@@ -43,7 +43,7 @@ func initialise_satellites(
 ) {
 	solar_position := vector.Vec{X: 0, Y: 0}
 
-	orbit = kepler.New_orbit(a, ecc, period)
+	orbit = kepler.New_elliptical_orbit(a, ecc, period)
 	n_particles := len(offset_times)
 	sim = kepler.New_simulation_parameters(n_steps, n_trails, &orbit)
 

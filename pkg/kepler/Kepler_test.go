@@ -64,7 +64,7 @@ func Test_Tau_elliptical(t *testing.T) {
 func Test_Distance(t *testing.T) {
 
 	// given
-	orbit := New_orbit(1.0, 0.4, 1.0)
+	orbit := New_elliptical_orbit(1.0, 0.4, 1.0)
 	sample_phis := []float64{0.0, math.Pi, -math.Pi}
 	expected_distances := []float64{orbit.Perihelion, orbit.Aphelion, orbit.Aphelion}
 
@@ -91,7 +91,7 @@ func Test_Distance(t *testing.T) {
 func Test_Speed(t *testing.T) {
 
 	// given
-	orbit := New_orbit(1.0, 0.4, 1.0)
+	orbit := New_elliptical_orbit(1.0, 0.4, 1.0)
 	sample_phis := []float64{0.0, math.Pi, -math.Pi}
 	expected_speeds := []float64{orbit.V_perihelion, orbit.V_aphelion, orbit.V_aphelion}
 
@@ -120,7 +120,7 @@ func Test_Speed(t *testing.T) {
 func Test_Time_to_perihelion(t *testing.T) {
 
 	// given
-	orbit := New_orbit(1.0, 0.4, 1.0)
+	orbit := New_elliptical_orbit(1.0, 0.4, 1.0)
 	sample_phis := []float64{math.Pi, -math.Pi}
 	expected_speeds := []float64{orbit.Period / 2.0, orbit.Period / 2.0}
 
@@ -147,7 +147,7 @@ func Test_Time_to_perihelion(t *testing.T) {
 func Test_Phi_for_time_to_perihelion(t *testing.T) {
 
 	// given
-	orbit := New_orbit(1.0, 0.4, 1.0)
+	orbit := New_elliptical_orbit(1.0, 0.4, 1.0)
 	time := orbit.Period / 2.0
 
 	// when
@@ -172,7 +172,7 @@ func Test_Phi_for_time_to_perihelion(t *testing.T) {
 func Test_Tangent_to_ellipse(t *testing.T) {
 
 	// given
-	orbit := New_orbit(1.0, 0.4, 1.0)
+	orbit := New_elliptical_orbit(1.0, 0.4, 1.0)
 	sample_phis := []float64{
 		0.0,
 		math.Pi,

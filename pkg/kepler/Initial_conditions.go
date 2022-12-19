@@ -7,7 +7,7 @@ import (
 	"gonum.org/v1/gonum/spatial/r2"
 )
 
-func New_satellite(phi, mass float64, orbit *Orbit_t) physics.Particle_t {
+func New_satellite(phi, mass float64, orbit *Elliptical_orbit_t) physics.Particle_t {
 
 	position := Position_along_elliplse(phi, orbit)
 	velocoity := r2.Scale(Speed_along_ellipse(phi, orbit), Tangent_along_ellipse(phi, orbit))
@@ -15,18 +15,18 @@ func New_satellite(phi, mass float64, orbit *Orbit_t) physics.Particle_t {
 	return physics.New_particle("", mass, position, velocoity)
 }
 
-func New_satellite_from_perihelion(orbit *Orbit_t) physics.Particle_t {
+func New_satellite_from_perihelion(orbit *Elliptical_orbit_t) physics.Particle_t {
 	position := vector.Cartesian_position_from_polar(orbit.Perihelion, 0.0)
 	velocoity := vector.Vec{X: 0.0, Y: orbit.V_perihelion}
 	return physics.New_particle("", 1.0, position, velocoity)
 }
 
-func New_massive_body(orbit *Orbit_t) physics.Gravity_massive_body_t {
+func New_massive_body(orbit *Elliptical_orbit_t) physics.Gravity_massive_body_t {
 	return physics.New_massive_body(
 		physics.New_particle("", orbit.Mu/physics.G, vector.Null(), vector.Null()))
 }
 
-func New_simulation_parameters(n_steps, n_trails int, orbit *Orbit_t) plot_p5.Simulation_t {
+func New_simulation_parameters(n_steps, n_trails int, orbit *Elliptical_orbit_t) plot_p5.Simulation_t {
 	dt := orbit.Period / float64(n_steps)
 
 	return plot_p5.Simulation_t{

@@ -20,7 +20,7 @@ const (
 )
 
 var (
-	orbit  kepler.Orbit_t
+	orbit  kepler.Elliptical_orbit_t
 	system physics.System_t
 
 	sim plot_p5.Simulation_t
@@ -36,6 +36,29 @@ var (
 	step_count = 0
 )
 
+// func initialise_satellite(
+// 	orbit *kepler.Orbit_t,
+// 	time_to_perihelion, axis_angle float64,
+// ) (particle physics.Particle_t) {
+
+// 	phi := 0.0
+// 	if !comparison.Float64_equality(time_to_perihelion, 0.0) {
+// 		var err error = nil
+// 		phi, err = kepler.Phi_for_time_to_perihelion(time_to_perihelion, orbit)
+// 		if err != nil {
+// 			panic(err)
+// 		}
+// 	}
+
+// 	particle = kepler.New_satellite(phi, 1.0, orbit)
+
+// 	if !comparison.Float64_equality(axis_angle, 0.0) {
+// 		kepler.Rotate_orbit(&particle, axis_angle)
+// 	}
+
+// 	return
+// }
+
 func initialise_satellites(
 	a, ecc, period float64,
 	n_steps, n_trails int,
@@ -44,7 +67,7 @@ func initialise_satellites(
 ) {
 	solar_position := vector.Vec{X: 0, Y: 0}
 
-	orbit = kepler.New_orbit(a, ecc, period)
+	orbit = kepler.New_elliptical_orbit(a, ecc, period)
 	n_particles := len(offset_times)
 	sim = kepler.New_simulation_parameters(n_steps, n_trails, &orbit)
 
@@ -97,13 +120,27 @@ func main() {
 func granite_settings() {
 	a, ecc, period := 1.0, 0.7, 1.0
 
-	beats_per_minute := 95
-	steps_per_second := 30
-	beats_per_period := 4
+	// n_steps, n_trails := 360, 7
+	// axis_offset_angle, particle_offset_angle := math.Pi/6.0, math.Pi/64.0
 
-	steps_per_period := beats_per_period / beats_per_minute * steps_per_second * 60
+	// time_lag := period / 16.0
+	// offset_times := []float64{
+	// 	0.0 * time_lag,
+	// 	1.0 * time_lag,
+	// 	2.0 * time_lag,
+	// }
 
-	n_trails := 7
+	// initialise_satellites(a, ecc, period, n_steps, n_trails, axis_offset_angle, particle_offset_angle, offset_times)
+
+	var beats_per_second float64 = 95.0 / 60.0
+	steps_per_second := 90
+	beats_per_period := 8
+
+	steps_per_period := int(float64(beats_per_period*steps_per_second) / beats_per_second)
+
+	fmt.Println("steps per second =", steps_per_period)
+
+	n_trails := 10
 	axis_offset_angle, particle_offset_angle := math.Pi/6.0, math.Pi/64.0
 
 	lead_time := period / 4.0
@@ -117,21 +154,6 @@ func granite_settings() {
 	initialise_satellites(a, ecc, period, steps_per_period, n_trails, axis_offset_angle, particle_offset_angle, offset_times)
 
 	stepper = integrator.New_stepper(integrator.Default_O4_algorithm())
-}
-
-func highly_eccentric_settings() {
-	a, ecc, period := 1.0, 0.9, 1.0
-
-	n_steps, n_trails := 1200, 20
-	axis_offset_angle, particle_offset_angle := 0.0, 0.0
-
-	offset_times := []float64{period / 2.0}
-
-	initialise_satellites(a, ecc, period, n_steps, n_trails, axis_offset_angle, particle_offset_angle, offset_times)
-
-	stepper = integrator.New_stepper(integrator.Default_O6_algorithm())
-	// stepper = integrator.New_stepper(integrator.Version_3_5_1_v_3())
-	// stepper = integrator.New_stepper(integrator.Version_3_5_1_v_2())
 }
 
 func run_simulation() {
@@ -169,7 +191,7 @@ func draw_frame() {
 		// velocities[i].Plot()
 	}
 
-	filename := fmt.Sprintf("frames/frame_%.6d.png", step_count)
-	p5.Screenshot(filename)
+	// filename := fmt.Sprintf("frames/frame_%.6d.png", step_count)
+	// p5.Screenshot(filename)
 
 }
