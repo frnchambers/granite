@@ -14,10 +14,6 @@ import (
 	"gonum.org/v1/gonum/spatial/r2"
 )
 
-const (
-	edge_pixel_count = 1000
-)
-
 var (
 	sol    physics.Particle_t
 	system physics.System_t
@@ -35,7 +31,7 @@ var (
 	flares      []plot_p5.Flare_t
 	trails      []plot_p5.Trail_t
 
-	col_background = color.Black
+	background_col = color.Black
 )
 
 func main() {
@@ -257,5 +253,5 @@ func draw_frame() {
 func setup() {
 	p5.PhysCanvas(dimensions.Pixels_x, dimensions.Pixels_y,
 		dimensions.X_min, dimensions.X_max, dimensions.Y_min, dimensions.Y_max)
-	p5.Background(col_background)
+	p5.Background(background_col)
 }
