@@ -19,7 +19,7 @@ const (
 var (
 	system physics.System_t
 
-	sim plot_p5.Simulation_t
+	sim plot_p5.Window_dimensions_t
 
 	dots       []plot_p5.Dot_t
 	trails     []plot_p5.Trail_t
@@ -42,7 +42,7 @@ func initialise_molecules() {
 
 	max_velocity := 1.0e-2 * window_size
 
-	sim = plot_p5.Simulation_t{
+	sim = plot_p5.Window_dimensions_t{
 		Trail_length: n_trails,
 		Dot_size:     dot_size,
 		X_min:        -window_size,

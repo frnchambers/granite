@@ -1,15 +1,21 @@
 package physics
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type System_t struct {
+	Time      float64
 	Force     Force_t
 	Particles []Particle_t
-	Time      float64
 }
 
 func (system *System_t) N_particles() int {
 	return len(system.Particles)
+}
+
+func (system *System_t) Increment_time(dt float64) {
+	system.Time += dt
 }
 
 func (system *System_t) Energy() float64 {
@@ -62,7 +68,7 @@ func (system *System_t) Increment_velocities_using_forces_and_force_gradients(ti
 
 func (system System_t) String() (output string) {
 	output = "System_t:\n"
-	output += fmt.Sprintf("Force: %v\nParticles: [\n", system.Force)
+	output += fmt.Sprintf("Time: %.2e\nEnergy: %.2e\nForce: %v\nParticles: [\n", system.Time, system.Energy(), system.Force)
 	for _, p := range system.Particles {
 		output += p.String() + ",\n"
 	}
@@ -70,12 +76,27 @@ func (system System_t) String() (output string) {
 	return
 }
 
-func (system System_t) As_row() (output string) {
-	output = "System_t:\n"
-	output += fmt.Sprintf("Force: %v\nParticles: [\n", system.Force)
-	for _, p := range system.Particles {
-		output += p.String() + ",\n"
+func (system System_t) Table_header() (output string) {
+	output = "# System_t:\n"
+	output += fmt.Sprintf("# Initial time:   %.6e\n", system.Time)
+	output += fmt.Sprintf("# Initial energy: %.6e\n", system.Energy())
+	// output += fmt.Sprintf("# Force: %v", system.Force)
+	output += fmt.Sprintf("# Time, Energy")
+	for i := range system.Particles {
+		output += fmt.Sprintf("r_%d_x, r_%d_y, v_%d_x, v_%d_y, f_%d_x, f_%d_y, fg_%d_x, fg_%d_y, K_%d\n", i, i, i, i, i, i, i, i, i)
 	}
-	output += "]"
+	return
+}
+
+func (system System_t) As_row() (output string) {
+	output += fmt.Sprintf("%.6e, %.6e", system.Time, system.Energy())
+	for _, p := range system.Particles {
+		output += fmt.Sprintf(", %.6e, %.6e", p.Position.X, p.Position.Y)
+		output += fmt.Sprintf(", %.6e, %.6e", p.Velocity.X, p.Velocity.Y)
+		output += fmt.Sprintf(", %.6e, %.6e", p.Force.X, p.Force.Y)
+		output += fmt.Sprintf(", %.6e, %.6e", p.Force_gradient.X, p.Force_gradient.Y)
+		output += fmt.Sprintf(", %.6e", p.Kinetic_energy())
+	}
+	output += "\n"
 	return
 }

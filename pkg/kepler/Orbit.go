@@ -78,6 +78,9 @@ func Phi_for_time_to_perihelion(time float64, orbit *Elliptical_orbit_t) (output
 		return output, errors.New(message)
 	}
 	bisec := root_solver.New_bisection_parameters(0.0, math.Pi)
+	if time < 0 {
+		bisec.X_1 = -math.Pi
+	}
 	bisec.Y_desired = time
 	output, err = root_solver.Bisection(Time_to_perihelion, orbit, &bisec)
 	return
@@ -88,7 +91,6 @@ func chi(phi, ecc float64) float64 {
 }
 
 func tau(phi, ecc float64) (output float64) {
-	// one_m_eccsq := 1.0 - ecc*ecc
 	return 2.0*math.Atan(math.Sqrt((1.0-ecc)/(1.0+ecc))*math.Tan(0.5*phi)) -
 		ecc*math.Sqrt(1-ecc*ecc)*math.Sin(phi)/chi(phi, ecc)
 }

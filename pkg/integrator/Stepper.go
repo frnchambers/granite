@@ -19,7 +19,7 @@ func (stepper *Stepper_t) Run(system *physics.System_t, timestep float64) {
 	for i := range stepper.steps {
 		stepper.steps[i].run(system, timestep)
 	}
-	system.Time += timestep
+	system.Increment_time(timestep)
 }
 
 func (stepper Stepper_t) String() (output string) {

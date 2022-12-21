@@ -166,7 +166,6 @@ func Test_Phi_for_time_to_perihelion(t *testing.T) {
 			time, expect[0], actual,
 		)
 	}
-
 }
 
 func Test_Tangent_to_ellipse(t *testing.T) {

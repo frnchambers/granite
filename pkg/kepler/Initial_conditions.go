@@ -2,7 +2,6 @@ package kepler
 
 import (
 	"github.com/granite/pkg/physics"
-	"github.com/granite/pkg/plot_p5"
 	"github.com/granite/pkg/vector"
 	"gonum.org/v1/gonum/spatial/r2"
 )
@@ -21,23 +20,12 @@ func New_satellite_from_perihelion(orbit *Elliptical_orbit_t) physics.Particle_t
 	return physics.New_particle("", 1.0, position, velocoity)
 }
 
-func New_massive_body(orbit *Elliptical_orbit_t) physics.Gravity_massive_body_t {
-	return physics.New_massive_body(
-		physics.New_particle("", orbit.Mu/physics.G, vector.Null(), vector.Null()))
+func New_massive_particle(orbit *Elliptical_orbit_t) physics.Particle_t {
+	return physics.New_particle("", orbit.Mu/physics.G, vector.Null(), vector.Null())
 }
 
-func New_simulation_parameters(n_steps, n_trails int, orbit *Elliptical_orbit_t) plot_p5.Simulation_t {
-	dt := orbit.Period / float64(n_steps)
-
-	return plot_p5.Simulation_t{
-		Trail_length: n_trails,
-		Dot_size:     1.0e-2,
-		X_min:        -2*orbit.Semi_major - orbit.Linear_eccentricity,
-		X_max:        2*orbit.Semi_major - orbit.Linear_eccentricity,
-		Y_min:        -orbit.Semi_major * 2.0,
-		Y_max:        orbit.Semi_major * 2.0,
-		Step_time:    dt,
-	}
+func New_massive_body(orbit *Elliptical_orbit_t) physics.Gravity_massive_body_t {
+	return physics.New_massive_body(New_massive_particle(orbit))
 }
 
 func Rotate_orbit(particle *physics.Particle_t, phi float64) {

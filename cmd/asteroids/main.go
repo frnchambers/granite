@@ -11,6 +11,7 @@ import (
 	"github.com/granite/pkg/kepler"
 	"github.com/granite/pkg/physics"
 	"github.com/granite/pkg/plot_p5"
+	"github.com/granite/pkg/random"
 	"github.com/granite/pkg/vector"
 	"gonum.org/v1/gonum/spatial/r2"
 )
@@ -23,7 +24,7 @@ var (
 	orbit  kepler.Elliptical_orbit_t
 	system physics.System_t
 
-	sim plot_p5.Simulation_t
+	sim plot_p5.Window_dimensions_t
 
 	step_count = 0
 
@@ -38,6 +39,20 @@ var (
 	stepper integrator.Stepper_t
 )
 
+func New_simulation_parameters(n_steps, n_trails int, orbit *kepler.Elliptical_orbit_t) plot_p5.Window_dimensions_t {
+	dt := orbit.Period / float64(n_steps)
+
+	return plot_p5.Window_dimensions_t{
+		Trail_length: n_trails,
+		Dot_size:     1.0e-2,
+		X_min:        -2*orbit.Semi_major - orbit.Linear_eccentricity,
+		X_max:        2*orbit.Semi_major - orbit.Linear_eccentricity,
+		Y_min:        -orbit.Semi_major * 2.0,
+		Y_max:        orbit.Semi_major * 2.0,
+		Step_time:    dt,
+	}
+}
+
 func initialise_satellites(
 	a, period float64,
 	n_steps, n_trails int,
@@ -46,10 +61,10 @@ func initialise_satellites(
 	solar_position := vector.Vec{X: 0, Y: 0}
 
 	orbit = kepler.New_elliptical_orbit(a, 0.0, period)
-	sim = kepler.New_simulation_parameters(n_steps, n_trails, &orbit)
+	sim = New_simulation_parameters(n_steps, n_trails, &orbit)
 
-	d_phi_max := math.Pi / 6.0
-	d_r_max := 2.0e-2
+	d_phi_max := math.Pi / 12.0
+	d_r_max := 5.0e-2
 
 	particles := make([]physics.Particle_t, n_particles+1)
 
@@ -64,7 +79,7 @@ func initialise_satellites(
 	dm := 1.0
 
 	for i := 2; i < n_particles+1; i++ {
-		phi := phi_jupiter + float64(2*rand.Intn(2)-1)*rand.Float64()*d_phi_max
+		phi := phi_jupiter + random.Signed_float64(d_phi_max) // float64(2*rand.Intn(2)-1)*rand.Float64()*d_phi_max
 		if i%2 == 0 {
 			phi += math.Pi / 3.0
 		} else {
@@ -72,7 +87,8 @@ func initialise_satellites(
 		}
 		mass := average_mass * (1.0 + float64(2*rand.Intn(2)-1)*rand.Float64()*dm)
 		particles[i] = kepler.New_satellite(phi, mass, &orbit)
-		particles[i].Position = r2.Scale(1.0+float64(2*rand.Intn(2)-1)*rand.Float64()*d_r_max, particles[i].Position)
+		// particles[i].Position = r2.Scale(1.0+float64(2*rand.Intn(2)-1)*rand.Float64()*d_r_max, particles[i].Position)
+		particles[i].Position = r2.Scale(1.0+random.Signed_float64(d_r_max), particles[i].Position)
 	}
 
 	system = physics.System_t{Force: &physics.Gravity_interparticle_t{}, Particles: particles}

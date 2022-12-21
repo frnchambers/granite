@@ -23,7 +23,7 @@ var (
 	orbit  kepler.Elliptical_orbit_t
 	system physics.System_t
 
-	sim plot_p5.Simulation_t
+	sim plot_p5.Window_dimensions_t
 
 	solar_pulse plot_p5.Pulse_t
 	dots        []plot_p5.Dot_t
