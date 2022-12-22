@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"log"
 	"math"
+	"os"
 
 	"github.com/go-p5/p5"
 	"github.com/granite/pkg/comparison"
@@ -47,9 +49,14 @@ func main() {
 	granite_settings(
 		frame_rate, beats_per_minute,
 		a, ecc, period,
-		lead_time, axis_offset_angle)
+		lead_time, axis_offset_angle,
+	)
 
 	p5.Run(setup, draw_frame)
+
+	// filename := "granite_simulation.dat"
+	// total_steps := 100
+	// output_data(filename, total_steps)
 }
 
 func granite_settings(
@@ -223,6 +230,12 @@ func initialise_trails(col color.Color, trail_length int) {
 	trails = plot_p5.Trails_from_system(system.Particles, col, trail_length)
 }
 
+func setup() {
+	p5.PhysCanvas(dimensions.Pixels_x, dimensions.Pixels_y,
+		dimensions.X_min, dimensions.X_max, dimensions.Y_min, dimensions.Y_max)
+	p5.Background(background_col)
+}
+
 func draw_frame() {
 
 	stepper.Run(&system, timestep)
@@ -250,8 +263,27 @@ func draw_frame() {
 	}
 }
 
-func setup() {
-	p5.PhysCanvas(dimensions.Pixels_x, dimensions.Pixels_y,
-		dimensions.X_min, dimensions.X_max, dimensions.Y_min, dimensions.Y_max)
-	p5.Background(background_col)
+func output_data(filename string, total_steps int) {
+
+	file, err := os.Create(filename)
+	check_error(err)
+	defer file.Close()
+
+	_, err = file.WriteString(system.Table_header())
+	check_error(err)
+
+	_, err = file.WriteString(system.As_row())
+	check_error(err)
+
+	for step_count = 0; step_count < total_steps; step_count++ {
+		stepper.Run(&system, timestep)
+		_, err = file.WriteString(system.As_row())
+		check_error(err)
+	}
+}
+
+func check_error(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }

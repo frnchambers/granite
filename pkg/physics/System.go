@@ -77,25 +77,25 @@ func (system System_t) String() (output string) {
 }
 
 func (system System_t) Table_header() (output string) {
-	output = "# System_t:\n"
-	output += fmt.Sprintf("# Initial time:   %.6e\n", system.Time)
-	output += fmt.Sprintf("# Initial energy: %.6e\n", system.Energy())
-	// output += fmt.Sprintf("# Force: %v", system.Force)
-	output += fmt.Sprintf("# Time, Energy")
+	output += fmt.Sprintf("# Initial time:   %.6e\n# Initial energy: %.6e\n", system.Time, system.Energy())
+	output += fmt.Sprintf("time, energy")
 	for i := range system.Particles {
-		output += fmt.Sprintf("r_%d_x, r_%d_y, v_%d_x, v_%d_y, f_%d_x, f_%d_y, fg_%d_x, fg_%d_y, K_%d\n", i, i, i, i, i, i, i, i, i)
+		output += fmt.Sprintf(", r_%d_x, r_%d_y, v_%d_x, v_%d_y, f_%d_x, f_%d_y, fg_%d_x, fg_%d_y, ke_%d", i, i, i, i, i, i, i, i, i)
 	}
+	output += "\n"
 	return
 }
 
 func (system System_t) As_row() (output string) {
 	output += fmt.Sprintf("%.6e, %.6e", system.Time, system.Energy())
 	for _, p := range system.Particles {
-		output += fmt.Sprintf(", %.6e, %.6e", p.Position.X, p.Position.Y)
-		output += fmt.Sprintf(", %.6e, %.6e", p.Velocity.X, p.Velocity.Y)
-		output += fmt.Sprintf(", %.6e, %.6e", p.Force.X, p.Force.Y)
-		output += fmt.Sprintf(", %.6e, %.6e", p.Force_gradient.X, p.Force_gradient.Y)
-		output += fmt.Sprintf(", %.6e", p.Kinetic_energy())
+		output += fmt.Sprintf(", %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e",
+			p.Position.X, p.Position.Y,
+			p.Velocity.X, p.Velocity.Y,
+			p.Force.X, p.Force.Y,
+			p.Force_gradient.X, p.Force_gradient.Y,
+			p.Kinetic_energy(),
+		)
 	}
 	output += "\n"
 	return
