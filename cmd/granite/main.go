@@ -28,15 +28,20 @@ var (
 	save_output bool
 
 	solar_pulse plot_p5.Pulse_t
-	dots        []plot_p5.Dot_t
-	pulses      []plot_p5.Pulse_t
-	flares      []plot_p5.Flare_t
-	trails      []plot_p5.Trail_t
+	// dots        []plot_p5.Dot_t
+	// pulses      []plot_p5.Pulse_t
+	flares []plot_p5.Flare_t
+	trails []plot_p5.Trail_t
 
 	background_col = color.Black
 )
 
 func main() {
+	initialise_granite(false)
+	run_p5_animation()
+}
+
+func initialise_granite(save bool) {
 
 	frame_rate := 60
 	beats_per_minute := 95
@@ -46,25 +51,33 @@ func main() {
 	lead_time := -period / 4.0
 	axis_offset_angle := math.Pi / 6.0
 
-	granite_settings(
-		frame_rate, beats_per_minute,
-		a, ecc, period,
-		lead_time, axis_offset_angle,
-	)
+	initialise_particles(a, ecc, period, lead_time, axis_offset_angle)
 
-	p5.Run(setup, draw_frame)
+	n_trails := int(float64(frame_rate) / 10.0)
+	initialise_draw_objects(period, lead_time, n_trails)
 
-	// filename := "granite_simulation.dat"
-	// total_steps := 100
-	// output_data(filename, total_steps)
+	initialise_integrator(period, steps_per_period(frame_rate, beats_per_minute))
+
+	initialise_window(a, ecc, save)
 }
 
-func granite_settings(
-	frame_rate, beats_per_minute int,
+func run_p5_animation() {
+	p5.Run(setup, draw_frame)
+}
+
+func run_save_data() {
+	filename := "granite_simulation.dat"
+	total_steps := 100
+	output_data(filename, total_steps)
+}
+
+func initialise_particles(
 	a, ecc, period,
 	lead_time_per_period, axis_offset_angle float64) {
 
+	n_particles := 3
 	orbit := kepler.New_elliptical_orbit(a, ecc, period)
+	fmt.Print("orbit = ", orbit, "\n")
 
 	lead_time := period * lead_time_per_period
 	time_lag := period / 16.0
@@ -75,57 +88,11 @@ func granite_settings(
 	}
 
 	particle_offset_angle := math.Pi / 64.0
-	offset_angels := []float64{
+	offset_angles := []float64{
 		-axis_offset_angle - 0.0*particle_offset_angle,
 		-axis_offset_angle - 1.0*particle_offset_angle,
 		-axis_offset_angle - 2.0*particle_offset_angle,
 	}
-
-	initialise_satellites(a, ecc, period, offset_times, offset_angels)
-
-	beats_per_period := 8
-	steps_per_period := int(float64(beats_per_period*frame_rate) * 60.0 / float64(beats_per_minute))
-
-	fmt.Println("steps per second =", steps_per_period)
-
-	initialise_draw_objects(&orbit, frame_rate, offset_times)
-
-	stepper = integrator.New_stepper(integrator.Default_O6_algorithm())
-	timestep = period / float64(steps_per_period)
-
-	center_height_pc := 0.3
-	dimensions = New_dimensions_1920_1080(2*orbit.Semi_major, orbit.Eccentricity/2, center_height_pc)
-	save_output = false
-
-}
-
-func New_dimensions_1920_1080(physical_width, center_width_pc, center_height_pc float64) plot_p5.Window_dimensions_t {
-	tan_theta := 1080.0 / 1920.0
-	return plot_p5.Window_dimensions_t{
-		Pixels_x: 1920,
-		Pixels_y: 1080,
-		X_min:    -physical_width * (1.0 + center_width_pc),
-		X_max:    physical_width * (1.0 - center_width_pc),
-		Y_min:    -physical_width * tan_theta * (1.0 + center_height_pc),
-		Y_max:    physical_width * tan_theta * (1.0 - center_height_pc),
-	}
-}
-
-func output_variables() {
-	fmt.Print("sol = ", solar_pulse, "\n")
-	fmt.Print("system: ", system, "\n")
-	fmt.Printf("starting distance from body = %.2e\n", r2.Norm(r2.Sub(solar_pulse.Position(), system.Particles[0].Position)))
-	fmt.Print("stepper: ", stepper, "\n")
-}
-
-func initialise_satellites(
-	a, ecc, period float64,
-	offset_times, offset_angles []float64,
-) {
-	orbit := kepler.New_elliptical_orbit(a, ecc, period)
-	fmt.Print("orbit = ", orbit, "\n")
-
-	n_particles := len(offset_times)
 
 	particles := make([]physics.Particle_t, n_particles)
 	for i := range offset_times {
@@ -143,7 +110,30 @@ func initialise_satellites(
 		Particles: particles,
 		Time:      0.0,
 	}
+}
 
+func steps_per_period(frame_rate, beats_per_minute int) int {
+	beats_per_period := 8
+	return int(float64(beats_per_period*frame_rate) * 60.0 / float64(beats_per_minute))
+}
+
+func initialise_integrator(period float64, steps_per_period int) {
+	stepper = integrator.New_stepper(integrator.Default_O6_algorithm())
+	timestep = period / float64(steps_per_period)
+}
+
+func initialise_window(a, ecc float64, save bool) {
+	physical_width := 2 * a
+	center_height_frac, center_width_frac := 0.3, ecc/2 //orbit.Eccentricity/2
+	dimensions = plot_p5.New_dimensions(1920, 1080, physical_width, center_width_frac, center_height_frac)
+	save_output = save
+}
+
+func output_variables() {
+	fmt.Print("sol = ", solar_pulse, "\n")
+	fmt.Print("system: ", system, "\n")
+	fmt.Printf("starting distance from body = %.2e\n", r2.Norm(r2.Sub(solar_pulse.Position(), system.Particles[0].Position)))
+	fmt.Print("stepper: ", stepper, "\n")
 }
 
 func initialise_satellite(
@@ -170,24 +160,22 @@ func initialise_satellite(
 }
 
 func initialise_draw_objects(
-	orbit *kepler.Elliptical_orbit_t,
-	frame_rate int,
-	offset_times []float64,
+	period, lead_time float64,
+	n_trails int,
 ) {
 
 	sol_col := color.RGBA{R: 246, G: 244, B: 129, A: 255}
 	sol_size, sol_max := 3.0e-2, 9.0e-2
-	initialise_sol(sol_col, sol_size, sol_max, orbit.Period, offset_times[0])
+	initialise_sol(sol_col, sol_size, sol_max, period, lead_time)
 
 	particle_col := color.RGBA{R: 223, G: 120, B: 036, A: 255}
 	particle_size_relative_to_sol := 2.0e-1
 	particle_size := sol_size * particle_size_relative_to_sol
-	initialise_dots(particle_col, particle_size)
-
 	particle_max := sol_max * particle_size_relative_to_sol
-	initialise_pulses(particle_col, particle_size, particle_max, orbit.Period, offset_times)
 
-	n_trails := int(float64(frame_rate) / 10.0)
+	// initialise_dots(particle_col, particle_size)
+	// initialise_pulses(particle_col, particle_size, particle_max, period, offset_times)
+
 	initialise_trails(particle_col, n_trails)
 
 	flare_width := 5.0e-1
@@ -204,9 +192,9 @@ func initialise_sol(
 	solar_pulse.Reset_time(start_time)
 }
 
-func initialise_dots(col color.Color, dot_size float64) {
-	dots = plot_p5.Dots_from_system(system.Particles, col, dot_size)
-}
+// func initialise_dots(col color.Color, dot_size float64) {
+// 	dots = plot_p5.Dots_from_system(system.Particles, col, dot_size)
+// }
 
 func initialise_flares(
 	col color.Color,
@@ -215,16 +203,16 @@ func initialise_flares(
 	flares = plot_p5.Flares_from_system(system.Particles, sol.Position, col, min_size, max_size, width)
 }
 
-func initialise_pulses(
-	col color.Color,
-	min_size, max_size float64,
-	period float64, offset_times []float64,
-) {
-	pulses = plot_p5.Pulses_from_system(system.Particles, col, period, min_size, max_size)
-	for i, time := range offset_times {
-		pulses[i].Reset_time(time)
-	}
-}
+// func initialise_pulses(
+// 	col color.Color,
+// 	min_size, max_size float64,
+// 	period float64, offset_times []float64,
+// ) {
+// 	pulses = plot_p5.Pulses_from_system(system.Particles, col, period, min_size, max_size)
+// 	for i, time := range offset_times {
+// 		pulses[i].Reset_time(time)
+// 	}
+// }
 
 func initialise_trails(col color.Color, trail_length int) {
 	trails = plot_p5.Trails_from_system(system.Particles, col, trail_length)
@@ -241,15 +229,15 @@ func draw_frame() {
 	stepper.Run(&system, timestep)
 	step_count += 1
 
-	plot_p5.Update_dots(dots, system.Particles)
-	plot_p5.Update_pulses(pulses, system.Particles, timestep)
+	// plot_p5.Update_dots(dots, system.Particles)
+	// plot_p5.Update_pulses(pulses, system.Particles, timestep)
 	plot_p5.Update_flares(flares, system.Particles)
 	plot_p5.Update_trails(trails, system.Particles)
 
 	solar_pulse.Update_time(timestep)
 	solar_pulse.Plot()
 
-	for i := range dots {
+	for i := range system.Particles {
 		// dots[i].Plot()
 		// pulses[i].Plot()
 		flares[i].Plot()

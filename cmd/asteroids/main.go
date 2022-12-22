@@ -16,27 +16,23 @@ import (
 	"gonum.org/v1/gonum/spatial/r2"
 )
 
-const (
-	edge_pixel_count = 1000
-)
-
 var (
-	orbit  kepler.Elliptical_orbit_t
+	sol    physics.Particle_t
 	system physics.System_t
 
-	sim plot_p5.Window_dimensions_t
-
-	step_count = 0
+	stepper    integrator.Stepper_t
+	timestep   float64
+	step_count int
 
 	solar_pulse plot_p5.Pulse_t
 	dots        []plot_p5.Dot_t
 	trails      []plot_p5.Trail_t
-	velocities  []plot_p5.Arrow_t
+	// velocities  []plot_p5.Arrow_t
 
-	energy      plot_p5.Trail_t
-	init_energy float64
+	// energy      plot_p5.Trail_t
+	// init_energy float64
 
-	stepper integrator.Stepper_t
+	background_col = color.Black
 )
 
 func New_simulation_parameters(n_steps, n_trails int, orbit *kepler.Elliptical_orbit_t) plot_p5.Window_dimensions_t {
