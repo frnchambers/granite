@@ -19,13 +19,19 @@ const (
 var (
 	system physics.System_t
 
-	sim plot_p5.Window_dimensions_t
+	stepper integrator.Stepper_t
+
+	timestep   float64
+	step_count int
+
+	dimensions  plot_p5.Window_dimensions_t
+	save_frames bool
 
 	dots       []plot_p5.Dot_t
 	trails     []plot_p5.Trail_t
 	velocities []plot_p5.Arrow_t
 
-	stepper integrator.Stepper_t
+	background_col = color.Black
 )
 
 func initialise_molecules() {

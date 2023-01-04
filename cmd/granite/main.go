@@ -25,7 +25,7 @@ var (
 	step_count int
 
 	dimensions  plot_p5.Window_dimensions_t
-	save_output bool
+	save_frames bool
 
 	solar_pulse plot_p5.Pulse_t
 	// dots        []plot_p5.Dot_t
@@ -37,16 +37,18 @@ var (
 )
 
 func main() {
-	initialise_granite(false)
+	save_output := false
+	initialise_granite(save_output)
 	run_p5_animation()
 }
 
-func initialise_granite(save bool) {
+func initialise_granite(save_output bool) {
 
 	frame_rate := 60
 	beats_per_minute := 95
 
 	a, ecc, period := 1.0, 0.7, 1.0
+	// a, ecc, period := 1.0, 0.0, 1.0
 
 	lead_time := -period / 4.0
 	axis_offset_angle := math.Pi / 6.0
@@ -58,7 +60,7 @@ func initialise_granite(save bool) {
 
 	initialise_integrator(period, steps_per_period(frame_rate, beats_per_minute))
 
-	initialise_window(a, ecc, save)
+	initialise_window(a, ecc, save_output)
 }
 
 func run_p5_animation() {
@@ -81,24 +83,14 @@ func initialise_particles(
 
 	lead_time := period * lead_time_per_period
 	time_lag := period / 16.0
-	offset_times := []float64{
-		lead_time + 0.0*time_lag,
-		lead_time + 1.0*time_lag,
-		lead_time + 2.0*time_lag,
-	}
-
 	particle_offset_angle := math.Pi / 64.0
-	offset_angles := []float64{
-		-axis_offset_angle - 0.0*particle_offset_angle,
-		-axis_offset_angle - 1.0*particle_offset_angle,
-		-axis_offset_angle - 2.0*particle_offset_angle,
-	}
 
 	particles := make([]physics.Particle_t, n_particles)
-	for i := range offset_times {
-		time := offset_times[i]
-		rotation := offset_angles[i]
-		particles[i] = initialise_satellite(&orbit, 1.0, time, rotation)
+	for i := range particles {
+		mass := 1.0
+		time := lead_time + float64(i)*time_lag
+		rotation := -axis_offset_angle - float64(i)*particle_offset_angle
+		particles[i] = initialise_satellite(&orbit, mass, time, rotation)
 	}
 
 	fmt.Print("orbit = ", orbit, "\n")
@@ -123,10 +115,11 @@ func initialise_integrator(period float64, steps_per_period int) {
 }
 
 func initialise_window(a, ecc float64, save bool) {
-	physical_width := 2 * a
-	center_height_frac, center_width_frac := 0.3, ecc/2 //orbit.Eccentricity/2
+	physical_width := 3.5 * a
+	center_width_frac, center_height_frac := ecc, 0.3
 	dimensions = plot_p5.New_dimensions(1920, 1080, physical_width, center_width_frac, center_height_frac)
-	save_output = save
+	save_frames = save
+	fmt.Println("Window: ", dimensions)
 }
 
 func output_variables() {
@@ -184,8 +177,7 @@ func initialise_draw_objects(
 
 func initialise_sol(
 	col color.Color,
-	min_size, max_size float64,
-	period, start_time float64,
+	min_size, max_size, period, start_time float64,
 ) {
 	solar_pulse = plot_p5.New_pulse(col, period, min_size, max_size)
 	solar_pulse.Update_position(sol.Position)
@@ -245,7 +237,7 @@ func draw_frame() {
 		// velocities[i].Plot()
 	}
 
-	if save_output {
+	if save_frames {
 		filename := fmt.Sprintf("frames/frame_%.6d.png", step_count)
 		p5.Screenshot(filename)
 	}
