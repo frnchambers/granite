@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image/color"
 	"math"
-	"math/rand"
 
 	"github.com/go-p5/p5"
 	"github.com/granite/pkg/integrator"
@@ -17,17 +16,17 @@ import (
 )
 
 var (
-	sol    physics.Particle_t
 	system physics.System_t
 
 	stepper    integrator.Stepper_t
 	timestep   float64
 	step_count int
 
-	solar_pulse plot_p5.Pulse_t
-	dots        []plot_p5.Dot_t
-	trails      []plot_p5.Trail_t
-	// velocities  []plot_p5.Arrow_t
+	dimensions  plot_p5.Window_dimensions_t
+	save_frames bool
+
+	dots   []plot_p5.Dot_t
+	trails []plot_p5.Trail_t
 
 	// energy      plot_p5.Trail_t
 	// init_energy float64
@@ -35,34 +34,35 @@ var (
 	background_col = color.Black
 )
 
-func New_simulation_parameters(n_steps, n_trails int, orbit *kepler.Elliptical_orbit_t) plot_p5.Window_dimensions_t {
-	dt := orbit.Period / float64(n_steps)
+func main() {
+	// save_output := false
 
-	return plot_p5.Window_dimensions_t{
-		Trail_length: n_trails,
-		Dot_size:     1.0e-2,
-		X_min:        -2*orbit.Semi_major - orbit.Linear_eccentricity,
-		X_max:        2*orbit.Semi_major - orbit.Linear_eccentricity,
-		Y_min:        -orbit.Semi_major * 2.0,
-		Y_max:        orbit.Semi_major * 2.0,
-		Step_time:    dt,
-	}
+	a, period := 1.0, 1.0
+	n_particles := 20
+	steps_per_period := 250
+	n_trails := int(float64(steps_per_period) * 2.0e-2)
+
+	initialise_satellites(a, period, n_particles)
+	initialise_integrator(period, steps_per_period)
+	initialise_window(a)
+	initialise_draw_objects(n_trails)
+
+	p5.Run(setup, draw_frame)
 }
 
-func initialise_satellites(
-	a, period float64,
-	n_steps, n_trails int,
-	n_particles int,
-) {
-	solar_position := vector.Vec{X: 0, Y: 0}
+func setup() {
+	p5.PhysCanvas(
+		dimensions.Pixels_x, dimensions.Pixels_y,
+		dimensions.X_min, dimensions.X_max,
+		dimensions.Y_min, dimensions.Y_max)
+	p5.Background(background_col)
+}
 
-	orbit = kepler.New_elliptical_orbit(a, 0.0, period)
-	sim = New_simulation_parameters(n_steps, n_trails, &orbit)
+func initialise_satellites(a, period float64, n_particles int) {
 
-	d_phi_max := math.Pi / 12.0
-	d_r_max := 5.0e-2
+	orbit := kepler.New_elliptical_orbit(a, 0.0, period)
 
-	particles := make([]physics.Particle_t, n_particles+1)
+	particles := make([]physics.Particle_t, n_particles+2)
 
 	particles[0] = physics.New_particle("Sun", orbit.Mu/physics.G, vector.Null(), vector.Null())
 
@@ -72,104 +72,95 @@ func initialise_satellites(
 	particles[1].Name = "Jupiter"
 
 	average_mass := particles[1].Mass * 1.0e-5
-	dm := 1.0
+	// dm := 1.0
+	d_phi_max := math.Pi / 18.0
+	d_r_max := 5.0e-2
 
-	for i := 2; i < n_particles+1; i++ {
-		phi := phi_jupiter + random.Signed_float64(d_phi_max) // float64(2*rand.Intn(2)-1)*rand.Float64()*d_phi_max
+	for i := 2; i < len(particles); i++ {
+
+		phi := phi_jupiter + random.Signed_float64(d_phi_max)
+
 		if i%2 == 0 {
 			phi += math.Pi / 3.0
 		} else {
 			phi -= math.Pi / 3.0
 		}
-		mass := average_mass * (1.0 + float64(2*rand.Intn(2)-1)*rand.Float64()*dm)
+		// mass := average_mass * (1.0 + float64(2*rand.Intn(2)-1)*rand.Float64()*dm)
+		mass := average_mass
+
 		particles[i] = kepler.New_satellite(phi, mass, &orbit)
-		// particles[i].Position = r2.Scale(1.0+float64(2*rand.Intn(2)-1)*rand.Float64()*d_r_max, particles[i].Position)
 		particles[i].Position = r2.Scale(1.0+random.Signed_float64(d_r_max), particles[i].Position)
+
+		distance := r2.Norm(particles[i].Position)
+		speed := kepler.Speed_along_circle(distance, orbit.Mu)
+		particles[i].Velocity = r2.Scale(speed/r2.Norm(particles[i].Velocity), particles[i].Velocity)
 	}
 
 	system = physics.System_t{Force: &physics.Gravity_interparticle_t{}, Particles: particles}
 
-	init_energy = system.Energy()
-
-	solar_pulse = plot_p5.New_pulse(color.RGBA{R: 246, G: 244, B: 129, A: 255}, n_steps, 2.0e-2, 1.0e-1)
-	solar_pulse.Update_position(solar_position)
-	solar_pulse.Reset_time(0.0)
-
-	dots = plot_p5.Dots_from_system(system.Particles, sim.Dot_size)
-
-	dots[0].Set_col(color.RGBA{R: 246, G: 244, B: 129, A: 255})
-	dots[0].Set_diameter(1.0e-1)
-
-	// dots[1].Set_col(color.RGBA{R: 246, G: 244, B: 129, A: 255})
-	dots[1].Set_diameter(5.0e-2)
-
-	trails = plot_p5.Trails_from_system(system.Particles, sim.Trail_length)
-	velocities = plot_p5.Velocities_from_system(system.Particles)
+	// init_energy = system.Energy()
 }
 
-func initialise_energy(n_trails int) {
-	energy = plot_p5.New_trail(
-		color.RGBA{R: 223, G: 120, B: 036, A: 255},
-		n_trails,
-	)
+func initialise_draw_objects(n_trails int) {
+
+	solar_col := color.RGBA{R: 255, G: 255, B: 51, A: 255}
+	jupiter_col := color.RGBA{R: 255, G: 95, B: 26, A: 255}
+	particle_col := color.RGBA{R: 166, G: 166, B: 166, A: 255}
+
+	sol_size := 1.5e-1
+	jupiter_size := sol_size * 5.0e-1
+	asteroid_size := jupiter_size * 0.2
+
+	dots = plot_p5.Dots_from_system(system.Particles, particle_col, asteroid_size)
+
+	dots[0].Set_col(solar_col)
+	dots[0].Set_diameter(sol_size)
+
+	dots[1].Set_col(jupiter_col)
+	dots[1].Set_diameter(jupiter_size)
+
+	trails = plot_p5.Trails_from_system(system.Particles, particle_col, n_trails)
+
+	trails[0].Set_length(0)
+
+	trails[1].Set_color(jupiter_col)
+
 }
+
+func initialise_window(a float64) {
+	physical_width := 3.5 * a
+	center_width_frac, center_height_frac := 0.5, 0.5
+	dimensions = plot_p5.New_dimensions(1200, 1000, physical_width, center_width_frac, center_height_frac)
+	fmt.Println("Window: ", dimensions)
+}
+
+func initialise_integrator(period float64, steps_per_period int) {
+	stepper = integrator.New_stepper(integrator.Default_O6_algorithm())
+	timestep = period / float64(steps_per_period)
+}
+
+// func initialise_energy(n_trails int) {
+// 	energy = plot_p5.New_trail(
+// 		color.RGBA{R: 223, G: 120, B: 036, A: 255},
+// 		n_trails,
+// 	)
+// }
 
 func output_variables() {
-	fmt.Print("sol = ", solar_pulse, "\n")
-	fmt.Print("orbit = ", orbit, "\n")
 	fmt.Print("system: ", system, "\n")
-	fmt.Printf("starting distance from body = %.2e\n", r2.Norm(r2.Sub(solar_pulse.Position(), system.Particles[0].Position)))
 	fmt.Print("stepper: ", stepper, "\n")
 }
 
-func main() {
-	run_simulation()
-}
+func draw_frame() {
 
-func highly_eccentric_settings() {
-	a, period := 1.0, 1.0
-	n_steps, n_trails := 200, 3
-	n_particles := 32
-
-	initialise_satellites(a, period, n_steps, n_trails, n_particles)
-
-	stepper = integrator.New_stepper(integrator.Default_O6_algorithm())
-	// stepper = integrator.New_stepper(integrator.Version_3_5_1_v_3())
-	// stepper = integrator.New_stepper(integrator.Version_3_5_1_v_2())
-}
-
-func run_simulation() {
-	highly_eccentric_settings()
-	output_variables()
-	p5.Run(setup, draw_positions_frame)
-}
-
-func setup() {
-	p5.PhysCanvas(edge_pixel_count, edge_pixel_count,
-		sim.X_min, sim.X_max, sim.Y_min, sim.Y_max)
-	p5.Background(color.Black)
-
-	// p5.Stroke(color.White)
-	// p5.Fill(color.Transparent)
-	// p5.Ellipse(0, 0, orbit.Semi_major*2, orbit.Semi_minor*2)
-
-}
-
-func draw_positions_frame() {
-
-	stepper.Run(&system, sim.Step_time)
+	stepper.Run(&system, timestep)
 
 	plot_p5.Update_dots(dots, system.Particles)
 	plot_p5.Update_trails(trails, system.Particles)
-	// plot_p5.Update_velocities(velocities, system.Particles)
-
-	// solar_pulse.Update_time()
-	// solar_pulse.Plot()
 
 	for i := range dots {
 		dots[i].Plot()
 		trails[i].Plot()
-		// velocities[i].Plot()
 	}
 
 	step_count += 1
@@ -181,34 +172,34 @@ func draw_positions_frame() {
 
 }
 
-func draw_energy_frame() {
+// func draw_energy_frame() {
 
-	stepper.Run(&system, sim.Step_time)
+// 	stepper.Run(&system, timestep)
 
-	energy.Update(vector.New(system.Time, system.Energy()))
+// 	energy.Update(vector.New(system.Time, system.Energy()))
 
-	// plot_p5.Update_dots(dots, system.Particles)
-	// plot_p5.Update_trails(trails, system.Particles)
-	// plot_p5.Update_velocities(velocities, system.Particles)
+// 	// plot_p5.Update_dots(dots, system.Particles)
+// 	// plot_p5.Update_trails(trails, system.Particles)
+// 	// plot_p5.Update_velocities(velocities, system.Particles)
 
-	// solar_pulse.Update_time()
-	// solar_pulse.Plot()
+// 	// solar_pulse.Update_time()
+// 	// solar_pulse.Plot()
 
-	energy.Plot()
+// 	energy.Plot()
 
-	// for i := range dots {
-	// 	dots[i].Plot()
-	// 	trails[i].Plot()
-	// 	// velocities[i].Plot()
-	// }
+// 	// for i := range dots {
+// 	// 	dots[i].Plot()
+// 	// 	trails[i].Plot()
+// 	// 	// velocities[i].Plot()
+// 	// }
 
-	step_count += 1
+// 	step_count += 1
 
-	// filename := fmt.Sprintf("frame_%v.png", step_count)
-	// p5.Screenshot(filename)
+// 	// filename := fmt.Sprintf("frame_%v.png", step_count)
+// 	// p5.Screenshot(filename)
 
-}
+// }
 
-func dE(E, E_0 float64) float64 {
-	return 1 - E/E_0
-}
+// func dE(E, E_0 float64) float64 {
+// 	return 1 - E/E_0
+// }

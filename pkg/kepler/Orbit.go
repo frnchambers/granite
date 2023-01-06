@@ -38,6 +38,10 @@ func New_elliptical_orbit(a, ecc, period float64) (orbit Elliptical_orbit_t) {
 	return
 }
 
+func Velocity_along_ellipse(phi float64, orbit *Elliptical_orbit_t) vector.Vec {
+	return r2.Scale(Speed_along_ellipse(phi, orbit), Tangent_along_ellipse(phi, orbit))
+}
+
 func Tangent_along_ellipse(phi float64, orbit *Elliptical_orbit_t) vector.Vec {
 	r := Distance_from_centre(phi, orbit)
 	chi := chi(phi, orbit.Eccentricity)

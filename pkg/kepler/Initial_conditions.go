@@ -9,9 +9,10 @@ import (
 func New_satellite(phi, mass float64, orbit *Elliptical_orbit_t) physics.Particle_t {
 
 	position := Position_along_elliplse(phi, orbit)
-	velocoity := r2.Scale(Speed_along_ellipse(phi, orbit), Tangent_along_ellipse(phi, orbit))
+	// velocity := r2.Scale(Speed_along_ellipse(phi, orbit), Tangent_along_ellipse(phi, orbit))
+	velocity := Velocity_along_ellipse(phi, orbit)
 
-	return physics.New_particle("", mass, position, velocoity)
+	return physics.New_particle("", mass, position, velocity)
 }
 
 func New_satellite_from_perihelion(orbit *Elliptical_orbit_t) physics.Particle_t {

@@ -3,159 +3,120 @@ package main
 import (
 	"fmt"
 	"image/color"
-	"math"
 
 	"github.com/go-p5/p5"
-	"github.com/granite/pkg/comparison"
 	"github.com/granite/pkg/integrator"
 	"github.com/granite/pkg/kepler"
 	"github.com/granite/pkg/physics"
 	"github.com/granite/pkg/plot_p5"
-	"github.com/granite/pkg/vector"
 	"gonum.org/v1/gonum/spatial/r2"
 )
 
-const (
-	edge_pixel_count = 1000
-)
-
 var (
-	orbit  kepler.Elliptical_orbit_t
 	system physics.System_t
 
-	sim plot_p5.Window_dimensions_t
+	stepper    integrator.Stepper_t
+	timestep   float64
+	step_count int
 
-	solar_pulse plot_p5.Pulse_t
-	dots        []plot_p5.Dot_t
-	pulses      []plot_p5.Pulse_t
-	flares      []plot_p5.Flare_t
-	trails      []plot_p5.Trail_t
-	velocities  []plot_p5.Arrow_t
+	dimensions  plot_p5.Window_dimensions_t
+	save_frames bool
 
-	stepper integrator.Stepper_t
+	dots       []plot_p5.Dot_t
+	trails     []plot_p5.Trail_t
+	velocities []plot_p5.Arrow_t
+
+	// energy      plot_p5.Trail_t
+	// init_energy float64
+
+	background_col = color.Black
 )
 
-func initialise_satellites(
-	a, ecc, period float64,
-	n_steps, n_trails int,
-	axis_offset_angle, particle_offset_angle float64,
-	offset_times []float64,
-) {
-	solar_position := vector.Vec{X: 0, Y: 0}
-
-	orbit = kepler.New_elliptical_orbit(a, ecc, period)
-	n_particles := len(offset_times)
-	sim = kepler.New_simulation_parameters(n_steps, n_trails, &orbit)
-
-	particles := make([]physics.Particle_t, n_particles)
-	for i, time := range offset_times {
-		phi := 0.0
-		if !comparison.Float64_equality(time, 0.0) {
-			var err error = nil
-			phi, err = kepler.Phi_for_time_to_perihelion(time, &orbit)
-			if err != nil {
-				panic(err)
-			}
-		}
-		particles[i] = kepler.New_satellite(phi, 1.0, &orbit)
-		if !comparison.Float64_equality(axis_offset_angle, 0.0) &&
-			!comparison.Float64_equality(particle_offset_angle, 0.0) {
-			kepler.Rotate_orbit(&particles[i], -axis_offset_angle-float64(i)*particle_offset_angle)
-		}
-	}
-
-	system = physics.System_t{Force: kepler.New_massive_body(&orbit), Particles: particles}
-
-	solar_pulse = plot_p5.New_pulse(color.RGBA{R: 246, G: 244, B: 129, A: 255}, n_steps, 2.0e-2, 1.0e-1)
-	solar_pulse.Update_position(solar_position)
-	solar_pulse.Reset_time(-int(offset_times[0] / sim.Step_time))
-
-	dots = plot_p5.Dots_from_system(system.Particles, sim.Dot_size)
-	width := 5.0e-1
-	flares = plot_p5.Flares_from_system(system.Particles, sim.Dot_size*5.0e-1, sim.Dot_size*1.5, width)
-	pulses = plot_p5.Pulses_from_system(system.Particles, n_steps, sim.Dot_size/2.0, sim.Dot_size*2.0)
-	for i, time := range offset_times {
-		pulses[i].Reset_time(-int(time / sim.Step_time))
-	}
-	trails = plot_p5.Trails_from_system(system.Particles, sim.Trail_length)
-	velocities = plot_p5.Velocities_from_system(system.Particles)
-}
-
-func output_variables() {
-	fmt.Print("sol = ", solar_pulse, "\n")
-	fmt.Print("orbit = ", orbit, "\n")
-	fmt.Print("system: ", system, "\n")
-	fmt.Printf("starting distance from body = %.2e\n", r2.Norm(r2.Sub(solar_pulse.Position(), system.Particles[0].Position)))
-	fmt.Print("stepper: ", stepper, "\n")
-}
-
 func main() {
-	run_simulation()
-}
 
-func granite_settings() {
-	a, ecc, period := 1.0, 0.7, 1.0
-
-	n_steps, n_trails := 360, 7
-	axis_offset_angle, particle_offset_angle := math.Pi/6.0, math.Pi/64.0
-
-	time_lag := period / 16.0
-	offset_times := []float64{
-		0.0 * time_lag,
-		1.0 * time_lag,
-		2.0 * time_lag,
-	}
-
-	initialise_satellites(a, ecc, period, n_steps, n_trails, axis_offset_angle, particle_offset_angle, offset_times)
-
-	stepper = integrator.New_stepper(integrator.Default_O4_algorithm())
-}
-
-func highly_eccentric_settings() {
 	a, ecc, period := 1.0, 0.9, 1.0
 
-	n_steps, n_trails := 1200, 20
-	axis_offset_angle, particle_offset_angle := 0.0, 0.0
+	steps_per_period := 100
+	n_trails := int(float64(steps_per_period) * 2.0e-2)
 
-	offset_times := []float64{period / 2.0}
+	initialise_bodies(a, ecc, period)
+	initialise_integrator(period, steps_per_period)
+	initialise_window(a)
+	initialise_draw_objects(n_trails)
 
-	initialise_satellites(a, ecc, period, n_steps, n_trails, axis_offset_angle, particle_offset_angle, offset_times)
-
-	// stepper = integrator.New_stepper(integrator.Default_O6_algorithm())
-	// stepper = integrator.New_stepper(integrator.Version_3_5_1_v_3())
-	stepper = integrator.New_stepper(integrator.Version_3_5_1_v_2())
-}
-
-func run_simulation() {
-	granite_settings()
-	// highly_eccentric_settings()
 	output_variables()
+
 	p5.Run(setup, draw_frame)
 }
 
 func setup() {
-	p5.PhysCanvas(edge_pixel_count, edge_pixel_count,
-		sim.X_min, sim.X_max, sim.Y_min, sim.Y_max)
-	p5.Background(color.Black)
+	p5.PhysCanvas(
+		dimensions.Pixels_x, dimensions.Pixels_y,
+		dimensions.X_min, dimensions.X_max,
+		dimensions.Y_min, dimensions.Y_max)
+	p5.Background(background_col)
+}
+
+func initialise_bodies(a, ecc, period float64) {
+
+	// centre_of_mass := vector.Vec{X: 0, Y: 0}
+
+	orbit := kepler.New_elliptical_orbit(a, ecc, period)
+
+	r := kepler.Position_along_elliplse(0.0, &orbit)
+	v := kepler.Velocity_along_ellipse(0.0, &orbit)
+
+	alpha := 0.5 // masses are equal
+
+	m1, m2 := orbit.Mu*(1.0+alpha)/alpha/physics.G, orbit.Mu*(1.0+alpha)/physics.G
+	pos_1, pos_2 := r2.Scale(alpha/(1.0-alpha), r), r2.Scale(-1.0/(1.0-alpha), r)
+	vel_1, vel_2 := r2.Scale(alpha/(1.0-alpha), v), r2.Scale(-1.0/(1.0-alpha), v)
+
+	particles := make([]physics.Particle_t, 2)
+	particles[0] = physics.New_particle("", m1, pos_1, vel_1)
+	particles[1] = physics.New_particle("", m2, pos_2, vel_2)
+
+	system = physics.System_t{Force: &physics.Gravity_interparticle_t{}, Particles: particles}
+}
+
+func initialise_draw_objects(n_trails int) {
+
+	particle_col := color.RGBA{R: 255, G: 95, B: 26, A: 255}
+	dot_size := 1.5e-1
+
+	dots = plot_p5.Dots_from_system(system.Particles, particle_col, dot_size)
+	trails = plot_p5.Trails_from_system(system.Particles, particle_col, n_trails)
+
+	velocities = plot_p5.Velocities_from_system(system.Particles, particle_col)
+}
+
+func initialise_window(a float64) {
+	physical_width := 1000.0 * a
+	center_width_frac, center_height_frac := 0.5, 0.5
+	dimensions = plot_p5.New_dimensions(1200, 1000, physical_width, center_width_frac, center_height_frac)
+	fmt.Println("Window: ", dimensions)
+}
+
+func initialise_integrator(period float64, steps_per_period int) {
+	stepper = integrator.New_stepper(integrator.Default_O6_algorithm())
+	timestep = period / float64(steps_per_period)
+}
+
+func output_variables() {
+	fmt.Print("system: ", system, "\n")
+	fmt.Print("stepper: ", stepper, "\n")
 }
 
 func draw_frame() {
 
-	stepper.Run(&system, sim.Step_time)
+	stepper.Run(&system, timestep)
 
 	plot_p5.Update_dots(dots, system.Particles)
-	plot_p5.Update_pulses(pulses, system.Particles)
-	plot_p5.Update_flares(flares, system.Particles)
 	plot_p5.Update_trails(trails, system.Particles)
-	plot_p5.Update_velocities(velocities, system.Particles)
-
-	solar_pulse.Update_time()
-	solar_pulse.Plot()
+	// plot_p5.Update_velocities(velocities, system.Particles)
 
 	for i := range dots {
-		// dots[i].Plot()
-		// pulses[i].Plot()
-		flares[i].Plot()
+		dots[i].Plot()
 		trails[i].Plot()
 		// velocities[i].Plot()
 	}

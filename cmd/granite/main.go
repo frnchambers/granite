@@ -42,14 +42,24 @@ func main() {
 	run_p5_animation()
 }
 
+func run_p5_animation() {
+	p5.Run(setup, draw_frame)
+}
+
+func setup() {
+	p5.PhysCanvas(
+		dimensions.Pixels_x, dimensions.Pixels_y,
+		dimensions.X_min, dimensions.X_max,
+		dimensions.Y_min, dimensions.Y_max)
+	p5.Background(background_col)
+}
+
 func initialise_granite(save_output bool) {
 
 	frame_rate := 60
 	beats_per_minute := 95
 
 	a, ecc, period := 1.0, 0.7, 1.0
-	// a, ecc, period := 1.0, 0.0, 1.0
-
 	lead_time := -period / 4.0
 	axis_offset_angle := math.Pi / 6.0
 
@@ -61,16 +71,6 @@ func initialise_granite(save_output bool) {
 	initialise_integrator(period, steps_per_period(frame_rate, beats_per_minute))
 
 	initialise_window(a, ecc, save_output)
-}
-
-func run_p5_animation() {
-	p5.Run(setup, draw_frame)
-}
-
-func run_save_data() {
-	filename := "granite_simulation.dat"
-	total_steps := 100
-	output_data(filename, total_steps)
 }
 
 func initialise_particles(
@@ -125,7 +125,8 @@ func initialise_window(a, ecc float64, save bool) {
 func output_variables() {
 	fmt.Print("sol = ", solar_pulse, "\n")
 	fmt.Print("system: ", system, "\n")
-	fmt.Printf("starting distance from body = %.2e\n", r2.Norm(r2.Sub(solar_pulse.Position(), system.Particles[0].Position)))
+	fmt.Printf("starting distance from body = %.2e\n",
+		r2.Norm(r2.Sub(solar_pulse.Position(), system.Particles[0].Position)))
 	fmt.Print("stepper: ", stepper, "\n")
 }
 
@@ -152,10 +153,7 @@ func initialise_satellite(
 	return
 }
 
-func initialise_draw_objects(
-	period, lead_time float64,
-	n_trails int,
-) {
+func initialise_draw_objects(period, lead_time float64, n_trails int) {
 
 	sol_col := color.RGBA{R: 246, G: 244, B: 129, A: 255}
 	sol_size, sol_max := 3.0e-2, 9.0e-2
@@ -175,10 +173,7 @@ func initialise_draw_objects(
 	initialise_flares(particle_col, particle_size, particle_max, flare_width)
 }
 
-func initialise_sol(
-	col color.Color,
-	min_size, max_size, period, start_time float64,
-) {
+func initialise_sol(col color.Color, min_size, max_size, period, start_time float64) {
 	solar_pulse = plot_p5.New_pulse(col, period, min_size, max_size)
 	solar_pulse.Update_position(sol.Position)
 	solar_pulse.Reset_time(start_time)
@@ -188,10 +183,7 @@ func initialise_sol(
 // 	dots = plot_p5.Dots_from_system(system.Particles, col, dot_size)
 // }
 
-func initialise_flares(
-	col color.Color,
-	min_size, max_size, width float64,
-) {
+func initialise_flares(col color.Color, min_size, max_size, width float64) {
 	flares = plot_p5.Flares_from_system(system.Particles, sol.Position, col, min_size, max_size, width)
 }
 
@@ -208,12 +200,6 @@ func initialise_flares(
 
 func initialise_trails(col color.Color, trail_length int) {
 	trails = plot_p5.Trails_from_system(system.Particles, col, trail_length)
-}
-
-func setup() {
-	p5.PhysCanvas(dimensions.Pixels_x, dimensions.Pixels_y,
-		dimensions.X_min, dimensions.X_max, dimensions.Y_min, dimensions.Y_max)
-	p5.Background(background_col)
 }
 
 func draw_frame() {
@@ -241,6 +227,12 @@ func draw_frame() {
 		filename := fmt.Sprintf("frames/frame_%.6d.png", step_count)
 		p5.Screenshot(filename)
 	}
+}
+
+func run_save_data() {
+	filename := "granite_simulation.dat"
+	total_steps := 100
+	output_data(filename, total_steps)
 }
 
 func output_data(filename string, total_steps int) {

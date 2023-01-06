@@ -21,8 +21,18 @@ func New_trail(col color.Color, length int) Trail_t {
 	}
 }
 
+func (trail *Trail_t) Set_length(new_length int) {
+	trail.length = new_length
+	trail.data = make([]vector.Vec, 0, new_length)
+}
+
+func (trail *Trail_t) Set_color(new_color color.Color) {
+	trail.col = new_color
+}
+
 func (trail *Trail_t) Update(next_position vector.Vec) {
-	if len(trail.data) >= trail.length {
+	if trail.length == 0 {
+	} else if len(trail.data) >= trail.length {
 		trail.data = append([]vector.Vec{next_position}, trail.data[:len(trail.data)-1]...)
 	} else {
 		trail.data = append([]vector.Vec{next_position}, trail.data...)
