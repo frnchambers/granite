@@ -12,6 +12,37 @@ import (
 	"gonum.org/v1/gonum/spatial/r2"
 )
 
+/*
+
+By definition:
+  mu    := m1 m2 / (m1 + m2),
+  alpha := m2 / m1,
+
+Use: m2 = alpha m1, to remove m2 for:
+  mu = alpha m1 / (1 + alpha),
+
+Solve for m1:
+  m1 = mu (1 + alpha) / alpha,
+  m1 = mu (1 + alpha).
+
+By definition: r := r2 - r1.
+
+Can choose centre of mass frame such that,
+  c := (m1 r1 + m2 r2) / (m1 + m2) = 0,
+so that,
+  0 = m1 r1 + m2 (r + r1)
+
+Useful to note,
+           m2 / (m1 + m2) = alpha / (1 + alpha),
+and,
+  1 - alpha / (1 + alpha) = 1 / (1 + alpha).
+
+Solve for position:
+  r1 = - r alpha / (1 + alpha),
+  r2 = r / (1 + alpha).
+
+*/
+
 var (
 	system physics.System_t
 
@@ -34,13 +65,13 @@ var (
 
 func main() {
 
-	a, ecc, period := 1.0, 0.9, 1.0
+	a, ecc, period, alpha := 1.0, 0.0, 1.0, 10.0e-1
+	step_size := 3.0e-4 / period
+	trail_fraction := 1.0
+	n_trails := int(period / step_size * trail_fraction)
 
-	steps_per_period := 100
-	n_trails := int(float64(steps_per_period) * 2.0e-2)
-
-	initialise_bodies(a, ecc, period)
-	initialise_integrator(period, steps_per_period)
+	initialise_bodies(a, ecc, period, alpha)
+	initialise_integrator(step_size)
 	initialise_window(a)
 	initialise_draw_objects(n_trails)
 
@@ -57,7 +88,7 @@ func setup() {
 	p5.Background(background_col)
 }
 
-func initialise_bodies(a, ecc, period float64) {
+func initialise_bodies(a, ecc, period, alpha float64) {
 
 	// centre_of_mass := vector.Vec{X: 0, Y: 0}
 
@@ -66,15 +97,13 @@ func initialise_bodies(a, ecc, period float64) {
 	r := kepler.Position_along_elliplse(0.0, &orbit)
 	v := kepler.Velocity_along_ellipse(0.0, &orbit)
 
-	alpha := 0.5 // masses are equal
-
-	m1, m2 := orbit.Mu*(1.0+alpha)/alpha/physics.G, orbit.Mu*(1.0+alpha)/physics.G
-	pos_1, pos_2 := r2.Scale(alpha/(1.0-alpha), r), r2.Scale(-1.0/(1.0-alpha), r)
-	vel_1, vel_2 := r2.Scale(alpha/(1.0-alpha), v), r2.Scale(-1.0/(1.0-alpha), v)
+	m1, m2 := orbit.Mu*(1.0+alpha)/alpha, orbit.Mu*(1.0+alpha)
+	pos_1, pos_2 := r2.Scale(-alpha/(1.0+alpha), r), r2.Scale(1.0/(1.0+alpha), r)
+	vel_1, vel_2 := r2.Scale(-alpha/(1.0+alpha), v), r2.Scale(1.0/(1.0+alpha), v)
 
 	particles := make([]physics.Particle_t, 2)
-	particles[0] = physics.New_particle("", m1, pos_1, vel_1)
-	particles[1] = physics.New_particle("", m2, pos_2, vel_2)
+	particles[0] = physics.New_particle("", m1/physics.G, pos_1, vel_1)
+	particles[1] = physics.New_particle("", m2/physics.G, pos_2, vel_2)
 
 	system = physics.System_t{Force: &physics.Gravity_interparticle_t{}, Particles: particles}
 }
@@ -82,7 +111,7 @@ func initialise_bodies(a, ecc, period float64) {
 func initialise_draw_objects(n_trails int) {
 
 	particle_col := color.RGBA{R: 255, G: 95, B: 26, A: 255}
-	dot_size := 1.5e-1
+	dot_size := 1.5e-2
 
 	dots = plot_p5.Dots_from_system(system.Particles, particle_col, dot_size)
 	trails = plot_p5.Trails_from_system(system.Particles, particle_col, n_trails)
@@ -91,15 +120,16 @@ func initialise_draw_objects(n_trails int) {
 }
 
 func initialise_window(a float64) {
-	physical_width := 1000.0 * a
+	physical_width := 2.0 * a
 	center_width_frac, center_height_frac := 0.5, 0.5
 	dimensions = plot_p5.New_dimensions(1200, 1000, physical_width, center_width_frac, center_height_frac)
 	fmt.Println("Window: ", dimensions)
 }
 
-func initialise_integrator(period float64, steps_per_period int) {
+// func initialise_integrator(period float64, steps_per_period int) {
+func initialise_integrator(step_size float64) {
 	stepper = integrator.New_stepper(integrator.Default_O6_algorithm())
-	timestep = period / float64(steps_per_period)
+	timestep = step_size
 }
 
 func output_variables() {

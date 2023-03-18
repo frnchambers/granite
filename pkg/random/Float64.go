@@ -12,16 +12,16 @@ func Position(D_max float64) vector.Vec {
 }
 
 func Velocity(v_max float64) vector.Vec {
-	v_abs := Positive_float64(v_max)
-	phi := Positive_float64(math.Pi * 2.0)
+	v_abs := Non_negative_float64(v_max)
+	phi := Non_negative_float64(math.Pi * 2.0)
 	return vector.Cartesian_position_from_polar(v_abs, phi)
 }
 
 func Signed_float64(x_abs_max float64) float64 {
-	return sign() * Positive_float64(x_abs_max)
+	return sign() * Non_negative_float64(x_abs_max)
 }
 
-func Positive_float64(x_max float64) float64 {
+func Non_negative_float64(x_max float64) float64 {
 	return rand.Float64() * x_max
 }
 

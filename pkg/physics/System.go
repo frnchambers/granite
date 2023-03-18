@@ -2,6 +2,9 @@ package physics
 
 import (
 	"fmt"
+
+	"github.com/granite/pkg/vector"
+	"gonum.org/v1/gonum/spatial/r2"
 )
 
 type System_t struct {
@@ -27,6 +30,33 @@ func (system *System_t) Kinetic_energy() (K float64) {
 	for i := range system.Particles {
 		K += system.Particles[i].Kinetic_energy()
 	}
+	return
+}
+
+func (system *System_t) Total_mass() (mass float64) {
+	mass = 0.0
+	for i := range system.Particles {
+		mass += system.Particles[i].Mass
+	}
+	return
+}
+
+func (system *System_t) Centre_of_mass() (com vector.Vec) {
+	com = vector.Null()
+	M := system.Total_mass()
+	for i := range system.Particles {
+		com = r2.Add(com, r2.Scale(system.Particles[i].Mass/M, system.Particles[i].Position))
+	}
+	return
+}
+
+func (system *System_t) Average_velocity() (vel vector.Vec) {
+	vel = vector.Null()
+	N := float64(system.N_particles())
+	for i := range system.Particles {
+		vel = r2.Add(vel, system.Particles[i].Velocity)
+	}
+	vel = r2.Scale(1.0/N, vel)
 	return
 }
 

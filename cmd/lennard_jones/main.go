@@ -10,10 +10,7 @@ import (
 	"github.com/granite/pkg/plot_p5"
 	"github.com/granite/pkg/random"
 	"github.com/granite/pkg/vector"
-)
-
-const (
-	edge_pixel_count = 1000
+	"gonum.org/v1/gonum/spatial/r2"
 )
 
 var (
@@ -34,42 +31,66 @@ var (
 	background_col = color.Black
 )
 
-func initialise_molecules() {
+func main() {
 
 	sigma, epsilon := 1.0, 1.0
+	n_particles := 2
+	box_size := 2.0
+
+	dt := 1.0e-2
 
 	n_trails := 10
-	n_particles := 5
+	dot_size := box_size * 1.0e-2
 
-	dt := 1.0e-3
+	initialise_molecules(sigma, epsilon, n_particles, box_size, dt)
+	initialise_integrator(dt)
+	initialise_window(box_size)
+	initialise_draw_objects(dot_size, n_trails)
 
-	window_size := 20.0
-	dot_size := window_size * 1.0e-2
+	output_variables()
 
-	max_velocity := 1.0e-2 * window_size
+	p5.Run(setup, draw_frame)
+}
 
-	sim = plot_p5.Window_dimensions_t{
-		Trail_length: n_trails,
-		Dot_size:     dot_size,
-		X_min:        -window_size,
-		X_max:        window_size,
-		Y_min:        -window_size,
-		Y_max:        window_size,
-		Step_time:    dt,
-	}
+func initialise_molecules(sigma, epsilon float64, n_particles int, box_size, timestep float64) {
+
+	max_position := box_size / 2.0
+	// max_velocity := 1.0e-2 * box_size / timestep
+	max_velocity := 0.0
 
 	particles := make([]physics.Particle_t, n_particles)
 	for i := range particles {
-		particles[i] = new_random_molecule(window_size/2.0, max_velocity)
+		particles[i] = new_random_molecule(max_position, max_velocity)
 	}
 
 	system = physics.System_t{Force: physics.New_lennard_jones(sigma, epsilon), Particles: particles, Time: 0.0}
 
-	dots = plot_p5.Dots_from_system(system.Particles, sim.Dot_size)
-	trails = plot_p5.Trails_from_system(system.Particles, sim.Trail_length)
-	velocities = plot_p5.Velocities_from_system(system.Particles)
+	centre_of_mass := system.Centre_of_mass()
+	average_velocity := system.Average_velocity()
 
+	for i := range system.Particles {
+		particles[i].Position = r2.Sub(particles[i].Position, centre_of_mass)
+		particles[i].Velocity = r2.Sub(particles[i].Velocity, average_velocity)
+	}
+}
+
+func initialise_integrator(step_size float64) {
+	timestep = step_size
 	stepper = integrator.New_stepper(integrator.Velocity_verlet_algorithm())
+}
+
+func initialise_window(box_size float64) {
+	physical_width := 2.0 * box_size
+	center_width_frac, center_height_frac := 0.5, 0.5
+	dimensions = plot_p5.New_dimensions(1200, 1000, physical_width, center_width_frac, center_height_frac)
+	fmt.Println("Window: ", dimensions)
+}
+
+func initialise_draw_objects(dot_size float64, trail_length int) {
+	col := color.RGBA{R: 255, G: 95, B: 26, A: 255}
+	dots = plot_p5.Dots_from_system(system.Particles, col, dot_size)
+	trails = plot_p5.Trails_from_system(system.Particles, col, trail_length)
+	velocities = plot_p5.Velocities_from_system(system.Particles, col)
 }
 
 func new_random_molecule(box_size, max_speed float64) physics.Particle_t {
@@ -85,33 +106,26 @@ func output_variables() {
 	fmt.Print("stepper: ", stepper, "\n")
 }
 
-func main() {
-	run_simulation()
-}
-
-func run_simulation() {
-	initialise_molecules()
-	p5.Run(setup, draw_frame)
-}
-
 func setup() {
-	p5.PhysCanvas(edge_pixel_count, edge_pixel_count,
-		sim.X_min, sim.X_max, sim.Y_min, sim.Y_max)
-	p5.Background(color.Black)
+	p5.PhysCanvas(
+		dimensions.Pixels_x, dimensions.Pixels_y,
+		dimensions.X_min, dimensions.X_max,
+		dimensions.Y_min, dimensions.Y_max)
+	p5.Background(background_col)
 }
 
 func draw_frame() {
 
-	stepper.Run(&system, sim.Step_time)
+	stepper.Run(&system, timestep)
 
 	plot_p5.Update_dots(dots, system.Particles)
 	// plot_p5.Update_trails(trails, system.Particles)
-	plot_p5.Update_velocities(velocities, system.Particles)
+	// plot_p5.Update_velocities(velocities, system.Particles)
 
 	for i := 0; i < system.N_particles(); i++ {
 		dots[i].Plot()
 		// trails[i].Plot()
-		velocities[i].Plot()
+		// velocities[i].Plot()
 	}
 
 	// system.Time += sim.Step_time
